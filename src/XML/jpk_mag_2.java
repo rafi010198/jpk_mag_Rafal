@@ -26,8 +26,7 @@ import XML.Parameters;
 
 public class jpk_mag_2 extends Parameters{
 	static Connection connection= WB.Connection2DB.dbConnector();
-	
-	
+
 public static void main() throws SQLException, ParseException {
 	
 		        try {
@@ -40,8 +39,9 @@ public static void main() throws SQLException, ParseException {
 					
 					
 					// create the xml data
+		        	
 System.out.println("create the xml data");
-
+System.out.println(datastart);
 		            DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
 		            DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
 		            Document document = documentBuilder.newDocument();
@@ -58,7 +58,7 @@ System.out.println("create the xml data");
 
 	 
 		           // document = naglowek(document,root,datastart,datastop,"2018-12-17T14:13:00");
-		            document = naglowek(document,root,datastart,datastop,today()+"T"+time());
+		            document = naglowek(document,root,datastart,datastop,today()+"T"+time()+"Z");
 		            document = podmiot(document, root);
 		            document = magazyn(document, root);
 		            document = WZ(document,root,datastart,datastop);
@@ -230,7 +230,7 @@ private static Document podmiot(Document doc, Element root ){
 		    
 private static Document magazyn(Document doc, Element root){
 			   Element Magazyn = doc.createElement("tns:Magazyn");
-				Magazyn.appendChild(doc.createTextNode("MAIN MAGAZIN"));
+				Magazyn.appendChild(doc.createTextNode("MAGAZIN 2")); //name magazin ????????????
 				root.appendChild(Magazyn);	
 			   return doc;
 			   
@@ -261,14 +261,19 @@ private static Document WZ(Document doc, Element root, String start , String sto
 			       root.appendChild(WZ);	           
 			            
 			       		//  Podmiot1
-
-			       		String sql1 = " select s.ORDERNUMMER as NR,s.ARTIKELCODE,s.ARTIKELOMSCHRIJVING,s.BESTELD, a.DATUM, s.BESTELDATUM, s.BESTELEENHEID,s.GELEVERD,"
-			       						+"a.MATERIAAL,a.CFKOSTPRIJS,a.CFFIRMAMUNT , aa.LEVNAAM, (select sum(MATERIAAL)from artikel_kostprijs where ARTIKELCODE=s.ARTIKELCODE) as summ "
+			       info="Create sql to mag 2";
+			       setinfo("create dsfsdf s");
+			       System.out.println(info);
+			       		String sql1 = " select s.ORDERNUMMER as NR,s.SEQUENTIE, s.ARTIKELCODE,s.ARTIKELOMSCHRIJVING,s.BESTELD, a.DATUM, s.BESTELDATUM, s.BESTELEENHEID,s.GELEVERD,"
+			       						+"a.MATERIAAL,a.CFKOSTPRIJS,a.CFFIRMAMUNT , aa.LEVNAAM, (select sum(ORDERNUMMER)from storenotesdetail where ORDERNUMMER=s.ORDERNUMMER) as summ "
 			       						+"from storenotesdetail s "
 			       						+"left join artikel_kostprijs a on a.ARTIKELCODE = s.ARTIKELCODE "
 			       						+"left join artikel_aankoop aa on aa.ARTIKELCODE = s.ARTIKELCODE "
 			       						+"where s.Leverancier = '102' and s.BESTELDATUM between '"+ datastart +"' and '"+ datastop+"'  and a.SOORT = '4'";
- 		
+ 		System.out.println(sql1);
+ 		info=sql1;
+ 		setinfo("sql:"+sql1);
+ 		System.out.println(info);
 			    		Statement st1 = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			    		ResultSet rs1 = st1.executeQuery(sql1);
 			    		while(rs1.next()){
@@ -282,7 +287,7 @@ private static Document WZ(Document doc, Element root, String start , String sto
 			    					wzWartosc.setAttribute("xmlns", "http://jpk.mf.gov.pl/wzor/2016/03/09/03093/");
 			    					WZ.appendChild(wzWartosc);
 					       		
-			    							wzNumber = "WZ " +rs1.getString("NR"); // +"/"+rs1.getString("Volgnummer");             ??????????????????
+			    							wzNumber = "WZ " +rs1.getString("NR");
 			    							System.out.println("Detected WZ with Number: "+ wzNumber);
 			    							
 					    				Element NumerWZ = doc.createElement("NumerWZ");
@@ -292,7 +297,7 @@ private static Document WZ(Document doc, Element root, String start , String sto
 							       		Element DataWZ = doc.createElement("DataWZ");
 							       		DataWZ.appendChild(doc.createTextNode(rs1.getString("BESTELDATUM").substring(0,4) +"-"+rs1.getString("BESTELDATUM").substring(5,7)+"-"+rs1.getString("BESTELDATUM").substring(8,10)));
 							       		//DataWZ.appendChild(doc.createTextNode(rs1.getString("WzMadeDay").substring(0,4) +"-"+rs1.getString("WzMadeDay").substring(5,7)+"-"+rs1.getString("WzMadeDay").substring(8,10)));
-							       		//???????????????????????????????????????
+							       		//?????????????????
 							       		wzWartosc.appendChild(DataWZ);
 						       		
 						       		
@@ -352,7 +357,7 @@ private static Document WZ(Document doc, Element root, String start , String sto
 			    			WZWiersz.setAttribute("xmlns", "http://jpk.mf.gov.pl/wzor/2016/03/09/03093/");
 				       		WZ.appendChild(WZWiersz);
 				       		
-				       				wzNumber = "WZ " +rs1.getString("NR"); //+"/"+rs1.getString("Volgnummer");
+				       				wzNumber = "WZ " +rs1.getString("NR")+"/"+rs1.getString("SEQUENTIE");
 				       				
 					       		Element Numer2WZ = doc.createElement("Numer2WZ");
 					       		Numer2WZ.appendChild(doc.createTextNode(wzNumber));
@@ -385,12 +390,12 @@ private static Document WZ(Document doc, Element root, String start , String sto
 					       		WZWiersz.appendChild(JednostkaMiaryWZ);
 					       		
 						       		// if munt <> PLN  then search currency exchange that day and convert the total
-				/*	????????? 		String strCena = null;
+						 		String strCena = null;
 										       		
-						       		if(rs1.getString("munt").equals("PLN")){
-						       			strCena = rs1.getString("Eenheidsprijs");
+						       		if(rs1.getString("CFFIRMAMUNT").equals("PLN")){
+						       			strCena = rs1.getString("MATERIAAL");
 						       		}else{
-						       			strCena = ConvertValutaToPLN(rs1.getString("munt"), rs1.getString("Eenheidsprijs"), datumWZ);
+						       			strCena = ConvertValutaToPLN(rs1.getString("CFFIRMAMUNT"), rs1.getString("MATERIAAL"), datumWZ);
 						       		}// end else if
 					       		
 					       		Element CenaJednWZ = doc.createElement("CenaJednWZ");
@@ -399,7 +404,7 @@ private static Document WZ(Document doc, Element root, String start , String sto
 					       		
 						       		BigDecimal bdprice = new BigDecimal(strCena);
 						       				bdprice = bdprice.setScale(2,BigDecimal.ROUND_UP);
-						       		BigDecimal bdqty = new BigDecimal(rs1.getString("Geleverd"));
+						       		BigDecimal bdqty = new BigDecimal(rs1.getString("GELEVERD"));
 						       		BigDecimal total = bdprice.multiply(bdqty);
 						       				total = total.setScale(2,BigDecimal.ROUND_UP);
 					       		
@@ -407,7 +412,7 @@ private static Document WZ(Document doc, Element root, String start , String sto
 					       		WartoscPozycjiWZ.appendChild(doc.createTextNode(total.toString()));
 					       		WZWiersz.appendChild(WartoscPozycjiWZ);
 					       		
-				  */  			
+				    			
 			    			
 			    			
 			    			

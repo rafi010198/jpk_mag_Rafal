@@ -38,7 +38,6 @@ public static void main() throws SQLException, ParseException {
 		        	File f = Parameters.createFile("jpk_MAG.xml");
 		        	
 					
-					
 					// create the xml data
 System.out.println("create the xml data");
 
@@ -58,7 +57,7 @@ System.out.println("create the xml data");
 
 	 
 		           // document = naglowek(document,root,datastart,datastop,"2018-12-17T14:13:00");
-		            document = naglowek(document,root,datastart,datastop,today()+"T"+time());
+		            document = naglowek(document,root,datastart,datastop,today()+"T"+time()+"Z");
 		            document = podmiot(document, root);
 		            document = magazyn(document, root);
 		            document = WZ(document,root,datastart,datastop);
@@ -261,11 +260,12 @@ private static Document WZ(Document doc, Element root, String start , String sto
 			       root.appendChild(WZ);	           
 			            
 			       		//  Podmiot1
-
+			       setinfo("create dsfsdf s");
 			       		String sql1 = "select distinct  Bonnr as NR, Volgnummer,datum, Cfregistratie as WzMadeDay, Klantnr, Artikelcode,Artikelomschrijving, Geleverd, besteleenheid,Eenheidsprijs,totaal,Klantnaam,munt, "
 			       				+ "tekst, (select SUM(distinct totaal) from leverbondetail where Bonnr = NR) as summ"
 			       				+ "	from leverbondetail  where datum between '"+ datastart +"' and '"+ datastop +"'  order by Bonnr ,Volgnummer + 0 ASC ";
-
+			       		System.out.println(sql1);
+			       		setinfo("sql:"+sql1);
 			    		Statement st1 = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			    		ResultSet rs1 = st1.executeQuery(sql1);
 			    		while(rs1.next()){
@@ -279,7 +279,7 @@ private static Document WZ(Document doc, Element root, String start , String sto
 			    					wzWartosc.setAttribute("xmlns", "http://jpk.mf.gov.pl/wzor/2016/03/09/03093/");
 			    					WZ.appendChild(wzWartosc);
 					       		
-			    							wzNumber = "WZ " +rs1.getString("NR")+"/"+rs1.getString("Volgnummer");
+			    							wzNumber = "WZ " +rs1.getString("NR");
 			    							System.out.println("Detected WZ with Number: "+ wzNumber);
 			    							
 					    				Element NumerWZ = doc.createElement("NumerWZ");
