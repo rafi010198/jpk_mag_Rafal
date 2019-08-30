@@ -36,40 +36,59 @@ import XML.jpk_mag_2;
 
 //import PDF.cashPlan;
 import XML.jpk_mag_main;
-import com.toedter.calendar.JDateChooser;
+
 import javax.swing.event.AncestorListener;
 import javax.swing.event.AncestorEvent;
 import javax.swing.SwingConstants;
 import javax.swing.JCheckBox;
 import java.awt.SystemColor;
 import javax.swing.JList;
+
+import com.toedter.calendar.JDateChooser;
 import com.toedter.calendar.JMonthChooser;
 import com.toedter.calendar.JYearChooser;
 
 public class mainWindowStart extends JFrame {
 	
 	public static String directoryname;
-	private JPanel contentPane;
+	private static JPanel contentPane;
 	private JLabel lblWprowadOczekiwanLiczb;
 	private final ButtonGroup buttonGroup = new ButtonGroup();
-	private JLabel LabelInformation;
+	private JPanel PaneInfo;
 	
 //---------------------------------------------------------------------------------------------
 	public static String info="bnm";
 	public static void setinfo(String inf){
 		info=inf;
 	}
-	public void information (){
+	public static String getinfo(){
+		return info;
+	}
+
+/*	-------------------- My thread to change in programm ----------------------
+	public static void informationsy (){
 		Thread th = new Thread(){
 			public void run(){
 				try {
+					
+					changes.main();
+					
 					for(;;){
 						Calendar cal = new GregorianCalendar();
 						int sec = cal.get(Calendar.SECOND);
-
-					LabelInformation.setText(sec+"  "+info);
-					sleep(1000);
+						System.out.println("W¹tek czas "+sec+"  "+info);
+						
+						main(null);
+						try {
+							
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					
+					sleep(5000);
 					}
+
+
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -78,7 +97,8 @@ public class mainWindowStart extends JFrame {
 		th.start();
 		
 	}
-	
+*/	
+//**************** method for date stop and start ************************
 	/**
 	 	* @param datastart	create xml between datastart and datastop 
 	 */
@@ -88,9 +108,8 @@ public class mainWindowStart extends JFrame {
 		 * @param datastop	create xml between datastart and datastop 
 	*/
 	public static  String datastop;
-//******************method for loop*********************************************
-/*
-	public static void setdatastart(String dat){
+
+	public static void setdatastart_1(String dat){
 		datastart = dat+"-29";
 		System.out.println("ustawiono date: "+ datastart);
 	}
@@ -99,7 +118,7 @@ public class mainWindowStart extends JFrame {
 		return datastart;
 	}
 
-	public static void setdatastop(String dat){
+	public static void setdatastop_1(String dat){
 		int year = Integer.parseInt(dat.substring(0, 4));
 		int mount = Integer.parseInt(dat.substring(6, 7))-1;
 		Calendar kalendarz = new GregorianCalendar(year,mount,1);
@@ -111,8 +130,7 @@ public class mainWindowStart extends JFrame {
 	public static String getdatastop(){
 		return datastop;
 	}
-*/
-//*****************method for GUI *******************************************
+
 	public void setdatastart(JDateChooser dstart){
 
 		SimpleDateFormat doNazwy = new SimpleDateFormat("yyyy-MM-dd");
@@ -158,7 +176,7 @@ public class mainWindowStart extends JFrame {
 		setResizable(false);
 		setTitle("JPK_MAG              CUB4U");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 549, 420);
+		setBounds(100, 100, 485, 387);
 		contentPane = new JPanel();
 		contentPane.setBackground(SystemColor.menu);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -169,65 +187,42 @@ public class mainWindowStart extends JFrame {
 		//Image img = new ImageIcon(this.getClass().getResource("/BackgroundImage.jpg")).getImage();
 	
 		JDateChooser dstart = new JDateChooser();
-		dstart.setBounds(48, 131, 114, 20);
+		dstart.setEnabled(false);
+		dstart.setBounds(188, 148, 114, 20);
 		dstart.setToolTipText("yyyy-MM-dd");
 		contentPane.add(dstart);
 
 		JDateChooser dstop = new JDateChooser();
-		dstop.setBounds(215, 131, 114, 20);
+		dstop.setEnabled(false);
+		dstop.setBounds(355, 148, 114, 20);
 		contentPane.add(dstop);
 
 		JLabel lblDateStart = new JLabel("Date start");
-		lblDateStart.setBounds(48, 100, 114, 20);
+		lblDateStart.setEnabled(false);
+		lblDateStart.setBounds(188, 117, 114, 20);
 		lblDateStart.setHorizontalAlignment(SwingConstants.CENTER);
 		contentPane.add(lblDateStart);
 		
 		JLabel lblDateStop = new JLabel("Date stop");
-		lblDateStop.setBounds(215, 100, 114, 20);
+		lblDateStop.setEnabled(false);
+		lblDateStop.setBounds(355, 117, 114, 20);
 		lblDateStop.setHorizontalAlignment(SwingConstants.CENTER);
 		contentPane.add(lblDateStop);
 		
 		JMonthChooser monthChooser = new JMonthChooser();
-		monthChooser.getComboBox().setFont(new Font("Tahoma", Font.PLAIN, 11));
-		monthChooser.setBounds(393, 158, 105, 20);
-		monthChooser.setEnabled(false);
+		monthChooser.getComboBox().setFont(new Font("Tahoma", Font.PLAIN, 12));
+		monthChooser.getSpinner().setFont(new Font("Tahoma", Font.PLAIN, 12));
+		monthChooser.setBounds(38, 147, 105, 20);
+		contentPane.add(monthChooser);
 		
 		JYearChooser yearChooser = new JYearChooser();
-		yearChooser.getSpinner().setFont(new Font("Tahoma", Font.PLAIN, 12));
-		yearChooser.setBounds(426, 127, 47, 20);
-		yearChooser.setEnabled(false);
+		yearChooser.getSpinner().setFont(new Font("Tahoma", Font.PLAIN, 11));
+		yearChooser.setBounds(62, 117, 47, 20);
 		contentPane.add(yearChooser);
 		
-		
-
-		JRadioButton rdbtnCreateXmlFrom = new JRadioButton("create xml for one day");
-		rdbtnCreateXmlFrom.setBounds(111, 43, 218, 20);
-		rdbtnCreateXmlFrom.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				dstop.setEnabled(false);
-				lblDateStop.setEnabled(false);
-				
-
-			}
-		});
-		buttonGroup.add(rdbtnCreateXmlFrom);
-		contentPane.add(rdbtnCreateXmlFrom);
-		
-		JRadioButton rdbtnCreataXmlFrom = new JRadioButton("create xml for a few days");
-		rdbtnCreataXmlFrom.setBounds(111, 17, 218, 23);
-		rdbtnCreataXmlFrom.setSelected(true);
-		rdbtnCreataXmlFrom.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				dstop.setEnabled(true);
-				lblDateStop.setEnabled(true);
-			}
-		});
-		buttonGroup.add(rdbtnCreataXmlFrom);
-		contentPane.add(rdbtnCreataXmlFrom);
-/*		
-		JRadioButton rdbtnCreateXmlFor = new JRadioButton("create xml for a whole month ");
+		JRadioButton rdbtnCreateXmlFor = new JRadioButton("create xml for a whole month");
 		rdbtnCreateXmlFor.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
+			public void actionPerformed(ActionEvent arg0) {
 				dstop.setEnabled(false);
 				lblDateStop.setEnabled(false);
 				dstart.setEnabled(false);
@@ -236,28 +231,60 @@ public class mainWindowStart extends JFrame {
 				yearChooser.setEnabled(true);
 			}
 		});
+		rdbtnCreateXmlFor.setSelected(true);
 		buttonGroup.add(rdbtnCreateXmlFor);
-		rdbtnCreateXmlFor.setBounds(111, 66, 218, 23);
+		rdbtnCreateXmlFor.setBounds(111, 17, 218, 23);
 		contentPane.add(rdbtnCreateXmlFor);
-*/		
+		
+		JRadioButton rdbtnCreateXmlFrom = new JRadioButton("create xml for one day");
+		rdbtnCreateXmlFrom.setBounds(111, 69, 218, 20);
+		rdbtnCreateXmlFrom.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				dstop.setEnabled(false);
+				lblDateStop.setEnabled(false);
+				dstart.setEnabled(true);
+				lblDateStart.setEnabled(true);
+				monthChooser.setEnabled(false);
+				yearChooser.setEnabled(false);
+
+			}
+		});
+		buttonGroup.add(rdbtnCreateXmlFrom);
+		contentPane.add(rdbtnCreateXmlFrom);
+		
+		JRadioButton rdbtnCreataXmlFrom = new JRadioButton("create xml for a few days");
+		rdbtnCreataXmlFrom.setBounds(111, 43, 218, 23);
+		rdbtnCreataXmlFrom.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				dstop.setEnabled(true);
+				lblDateStop.setEnabled(true);
+				dstart.setEnabled(true);
+				lblDateStart.setEnabled(true);
+				monthChooser.setEnabled(false);
+				yearChooser.setEnabled(false);
+			}
+		});
+		buttonGroup.add(rdbtnCreataXmlFrom);
+		contentPane.add(rdbtnCreataXmlFrom);
+	
 		JLabel lblCreateXmlFrom = new JLabel("Create xml from magazin:");
-		lblCreateXmlFrom.setBounds(124, 173, 158, 20);
+		lblCreateXmlFrom.setBounds(111, 204, 158, 20);
 		lblCreateXmlFrom.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		lblCreateXmlFrom.setHorizontalAlignment(SwingConstants.CENTER);
 		contentPane.add(lblCreateXmlFrom);
 		
 		JCheckBox chckbxMagazinMain = new JCheckBox("Magazin Main");
-		chckbxMagazinMain.setBounds(156, 200, 126, 23);
+		chckbxMagazinMain.setBounds(143, 231, 126, 23);
 		chckbxMagazinMain.setSelected(true);
 		contentPane.add(chckbxMagazinMain);
 		
 		JCheckBox chckbxMagazin_2 = new JCheckBox("Magazin 2");
-		chckbxMagazin_2.setBounds(156, 226, 126, 23);
+		chckbxMagazin_2.setBounds(143, 257, 126, 23);
 		chckbxMagazin_2.setSelected(true);
 		contentPane.add(chckbxMagazin_2);
 		
 		JButton analizaGodzin = new JButton("Start JPK");
-		analizaGodzin.setBounds(89, 287, 232, 38);
+		analizaGodzin.setBounds(99, 291, 232, 38);
 		analizaGodzin.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		analizaGodzin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) 
@@ -265,12 +292,52 @@ public class mainWindowStart extends JFrame {
 			
 			System.out.println("Start JPK_MAG");
 								
+					if(rdbtnCreateXmlFor.isSelected())
+					{	
+						String datum;
+						int month=monthChooser.getMonth()+1;
+						if(month<10)
+						{
+							datum=yearChooser.getYear()+"-0"+month;
+						}
+						else{
+							datum=yearChooser.getYear()+"-"+month;
+						}
+						System.out.println(datum);
+						setdatastart_1(datum);
+						setdatastop_1(datum);
+						
+						try {
+						if(chckbxMagazinMain.isSelected())
+						{
+							directoryname = "Magazyn_Zakupy_103";
+							jpk_mag_main.main();
+						}
+						if(chckbxMagazin_2.isSelected())
+						{
+							directoryname = "Magazyn_MCG_102";
+							
+								jpk_mag_2.main();
+							
+						}
+						} catch (SQLException | ParseException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}	
+							
+					}
+					else
+					{
+			
+			
 								if(dstart.getDate()==null)
 								{
 									JOptionPane.showMessageDialog(contentPane, "You don't set start date");
 								}
 								else
 								{
+									
+									
 									try {
 										try {
 								
@@ -313,24 +380,11 @@ public class mainWindowStart extends JFrame {
 									
 								}
 				
-							
+					}		
 			}
 		});
 		contentPane.add(analizaGodzin);
-		
-		LabelInformation = new JLabel("cos tam");
-		LabelInformation.setBounds(10, 344, 152, 37);
-		contentPane.add(LabelInformation);
-		
-		information();
-		
-
-//********************* Program with loop for year and mounth ******************
-
-	
-		
-//*******************************************************************************
-		
+			
 	}
 	
 	private static boolean checkDatePattern(String data) {

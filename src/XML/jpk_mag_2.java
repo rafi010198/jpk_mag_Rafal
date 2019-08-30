@@ -42,6 +42,7 @@ public static void main() throws SQLException, ParseException {
 		        	
 System.out.println("create the xml data");
 System.out.println(datastart);
+
 		            DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
 		            DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
 		            Document document = documentBuilder.newDocument();
@@ -261,9 +262,9 @@ private static Document WZ(Document doc, Element root, String start , String sto
 			       root.appendChild(WZ);	           
 			            
 			       		//  Podmiot1
-			       info="Create sql to mag 2";
-			       setinfo("create dsfsdf s");
-			       System.out.println(info);
+
+setinfo("tworzenie sql");
+
 			       		String sql1 = " select s.ORDERNUMMER as NR,s.SEQUENTIE, s.ARTIKELCODE,s.ARTIKELOMSCHRIJVING,s.BESTELD, a.DATUM, s.BESTELDATUM, s.BESTELEENHEID,s.GELEVERD,"
 			       						+"a.MATERIAAL,a.CFKOSTPRIJS,a.CFFIRMAMUNT , aa.LEVNAAM, (select sum(ORDERNUMMER)from storenotesdetail where ORDERNUMMER=s.ORDERNUMMER) as summ "
 			       						+"from storenotesdetail s "
@@ -271,8 +272,7 @@ private static Document WZ(Document doc, Element root, String start , String sto
 			       						+"left join artikel_aankoop aa on aa.ARTIKELCODE = s.ARTIKELCODE "
 			       						+"where s.Leverancier = '102' and s.BESTELDATUM between '"+ datastart +"' and '"+ datastop+"'  and a.SOORT = '4'";
  		System.out.println(sql1);
- 		info=sql1;
- 		setinfo("sql:"+sql1);
+ setinfo("przetwarzanie danych");
  		System.out.println(info);
 			    		Statement st1 = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			    		ResultSet rs1 = st1.executeQuery(sql1);
@@ -469,7 +469,7 @@ private static Document PZ(Document doc, Element root, String start , String sto
 		    	int oldPzNr = 0;
 		    	
 		    	
-		    	
+setinfo("tworzenie sql dla PZ");		    	
 		    	
 		    	
 		    	Element PZ = doc.createElement("tns:PZ");
