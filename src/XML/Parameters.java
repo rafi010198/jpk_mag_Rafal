@@ -81,7 +81,7 @@ public static File createFile(String name){
 	
 	File f = new File(path+name);
 	if(f.exists() && !f.isDirectory()){
-		f = new File(path+ godz.format(date.getTime())+" "+name);
+		f = new File(path+today()+" "+godz.format(date.getTime())+" "+name);
 	}
 	
 	return f;
@@ -120,6 +120,7 @@ if (!theDir.exists()) {
     }
 }
 String path2 = Parameters.getPathToSaveHours()+"/"+directoryname+"/RAPORT_"+setNameMounth(datastart)+"_"+datastart.substring(0,4)+"/";
+//---------------------------------------------------------------------------------------------------
 	return path2;
 }
 

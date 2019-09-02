@@ -469,7 +469,7 @@ private static Document PZ(Document doc, Element root, String start , String sto
 		    	int oldPzNr = 0;
 		    	
 		    	
-setinfo("tworzenie sql dla PZ");		    	
+System.out.println("tworzenie sql dla PZ");		    	
 		    	
 		    	
 		    	Element PZ = doc.createElement("tns:PZ");
@@ -477,14 +477,15 @@ setinfo("tworzenie sql dla PZ");
 			            
 			       		//  Podmiot1
 
-			       		String sql1 = "select distinct bonnr, volgnummer,leverancier, ordernummer,sequentie,aantal, ARTIKELCODE , artikelomschrijving ,"
-			       				+ "besteld, geleverd , cfreceptiedatum receptiedatum,besteleenheid, cfeffleveringsdatum leveringsdatum, "
-			       				+ "(select verschaffingscode from artikel_algemeen where ARTIKELCODE = r.ARTIKELCODE)as code, "
-			       				+ "(select munt from bestellingdetail b where leverancier = r.leverancier and ordernummer = r.ordernummer and SEQUENTIE = r.sequentie) as munt, "
-			       				+ "(select eenheidsprijs from bestellingdetail b where leverancier = r.leverancier and ordernummer = r.ordernummer and SEQUENTIE = r.sequentie) as eenheidsprijs, "
-			       				+ "(select naam from leverancier where leveranciernr = r.LEVERANCIER) as name "
-			       				+ "from receptiedetail r where CFEFFLEVERINGSDATUM  between '"+ datastart +"' and '"+ datastop +"'order by Bonnr ,Volgnummer + 0 asc";
-
+			       		String sql1 = "select bonnr,volgnummer,leverancier,ordernummer,sequentie,aantal,rmd.artikelcode,artikelomschrijving,"
+			       				+"besteld, geleverd,cfreceptiedatum as receptiedatum, besteleenheid, cfeffleveringsdatum as leveringsdatum, "
+			       				+"(select verschaffingscode from artikel_algemeen where ARTIKELCODE = rmd.artikelcode) as code, " 
+			       				+"CFFIRMAMUNT as munt, CFKOSTPRIJS as eenheidsprijs, "
+			       				+"(select naam from leverancier where leveranciernr = rmd.LEVERANCIER) as name "
+			       				+"from receptie_magdetail rmd left join artikel_kostprijs ak on ak.ARTIKELCODE = rmd.artikelcode where cfreceptiedatum "
+			       				+"between '"+ datastart +"' and '"+ datastop +"' order by Bonnr ,Volgnummer + 0 asc";
+			       		
+System.out.println("przetwarzanie PZ");	
 			    		Statement st1 = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			    		ResultSet rs1 = st1.executeQuery(sql1);
 			    		while(rs1.next()){
