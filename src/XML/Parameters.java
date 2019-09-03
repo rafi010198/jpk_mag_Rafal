@@ -35,6 +35,7 @@ public class Parameters extends mainWindowStart {
 	public static String pzLeveringsdatum = null;
 	public static String pzLeverancier 	= null;
 	
+	//  \\192.168.90.203\logistyka\JPK
 	
 	private static String PathToSave= "C:/Users/pl01.FIN/Desktop/RD/baza_do_zapisu_lokalnie";
 	private static String PathToSaveHours= "C:/Users/pl01.FIN/Desktop/RD/baza_do_zapisu_lokalnie";

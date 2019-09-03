@@ -40,7 +40,7 @@ public static void main() throws SQLException, ParseException {
 					
 					// create the xml data
 System.out.println("create the xml data");
-
+setinfo("create the xml data");
 		            DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
 		            DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
 		            Document document = documentBuilder.newDocument();
@@ -96,11 +96,11 @@ System.out.println("create the xml data");
 		 
 	
 		        } catch (ParserConfigurationException pce) {
-	
+		        	seterror(pce.toString());
 		            pce.printStackTrace();
 	
 		        } catch (TransformerException tfe) {
-	
+		        	seterror(tfe.toString());
 		            tfe.printStackTrace();
 		        }
 		        
@@ -260,12 +260,11 @@ private static Document WZ(Document doc, Element root, String start , String sto
 			       root.appendChild(WZ);	           
 			            
 			       		//  Podmiot1
-			       setinfo("create dsfsdf s");
+setinfo("create sql to WZ from magazin MAIN");	
 			       		String sql1 = "select distinct  Bonnr as NR, Volgnummer,datum, Cfregistratie as WzMadeDay, Klantnr, Artikelcode,Artikelomschrijving, Geleverd, besteleenheid,Eenheidsprijs,totaal,Klantnaam,munt, "
 			       				+ "tekst, (select SUM(distinct totaal) from leverbondetail where Bonnr = NR) as summ"
 			       				+ "	from leverbondetail  where datum between '"+ datastart +"' and '"+ datastop +"'  order by Bonnr ,Volgnummer + 0 ASC ";
 			       		System.out.println(sql1);
-			       		setinfo("sql:"+sql1);
 			    		Statement st1 = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			    		ResultSet rs1 = st1.executeQuery(sql1);
 			    		while(rs1.next()){
@@ -464,7 +463,7 @@ private static Document PZ(Document doc, Element root, String start , String sto
 			    	root.appendChild(PZ);	           
 			            
 			       		//  Podmiot1
-
+setinfo("create sql to PZ from magazin MAIN");	
 			       		String sql1 = "select distinct bonnr, volgnummer,leverancier, ordernummer,sequentie,aantal, ARTIKELCODE , artikelomschrijving ,"
 			       				+ "besteld, geleverd , cfreceptiedatum receptiedatum,besteleenheid, cfeffleveringsdatum leveringsdatum, "
 			       				+ "(select verschaffingscode from artikel_algemeen where ARTIKELCODE = r.ARTIKELCODE)as code, "

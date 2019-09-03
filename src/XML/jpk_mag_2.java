@@ -41,7 +41,7 @@ public static void main() throws SQLException, ParseException {
 					// create the xml data
 		        	
 System.out.println("create the xml data");
-System.out.println(datastart);
+setinfo("create the xml");
 
 		            DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
 		            DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
@@ -62,7 +62,7 @@ System.out.println(datastart);
 		            document = naglowek(document,root,datastart,datastop,today()+"T"+time()+"Z");
 		            document = podmiot(document, root);
 		            document = magazyn(document, root);
-		            document = WZ(document,root,datastart,datastop);
+		            document = RW(document,root,datastart,datastop);
 		            document = PZ(document,root,datastart,datastop);
 			       	 
 				
@@ -98,11 +98,11 @@ System.out.println(datastart);
 		 
 	
 		        } catch (ParserConfigurationException pce) {
-	
+		        	seterror(pce.toString());
 		            pce.printStackTrace();
 	
 		        } catch (TransformerException tfe) {
-	
+		        	seterror(tfe.toString());
 		            tfe.printStackTrace();
 		        }
 		        
@@ -241,7 +241,7 @@ private static Document magazyn(Document doc, Element root){
 
 
 /**
- * Generate the WZ section for JPK_MAG
+ * Generate the RW section for JPK_MAG
  * @author CUB4U
  *
  * @param doc 		Document, main doc name file
@@ -249,56 +249,54 @@ private static Document magazyn(Document doc, Element root){
  * @param start 	start date in string version yyyy-mm-dd
  * @param stop 		stop date in string version yyyy-mm-dd
  * 
- * @return Document  WZ section of the document
+ * @return Document  RW section of the document
  */		    
-private static Document WZ(Document doc, Element root, String start , String stop) throws SQLException, ParseException{
+private static Document RW(Document doc, Element root, String start , String stop) throws SQLException, ParseException{
 		    	
-		    	BigDecimal totalamountWZ = BigDecimal.ZERO;
-		    	int countWZ = 0;   //counting the numbers of WZ`s
-		    	String wzNumber = null;
-		    	int rememberWzNr = 0;
+		    	BigDecimal totalamountRW = BigDecimal.ZERO;
+		    	int countRW = 0;   //counting the numbers of RW`s
+		    	String rwNumber = null;
+		    	int rememberRwNr = 0;
 		    	
-		    	Element WZ = doc.createElement("tns:WZ");
-			       root.appendChild(WZ);	           
+		    	Element RW = doc.createElement("tns:RW");
+			       root.appendChild(RW);	           
 			            
 			       		//  Podmiot1
 
-setinfo("tworzenie sql");
+setinfo("create sql to RW from magazin 2");
 
-			       		String sql1 = " select s.ORDERNUMMER as NR,s.SEQUENTIE, s.ARTIKELCODE,s.ARTIKELOMSCHRIJVING,s.BESTELD, a.DATUM, s.BESTELDATUM, s.BESTELEENHEID,s.GELEVERD,"
+			       		String sql1 = " select s.ORDERNUMMER as NR,s.SEQUENTIE, s.ARTIKELCODE,s.ARTIKELOMSCHRIJVING,s.BESTELD, s.LEVERINGSDATUMEFFECTIEF, s.LEVERINGSDATUMINGAVERECEPTIE, s.BESTELEENHEID,s.GELEVERD,"
 			       						+"a.MATERIAAL,a.CFKOSTPRIJS,a.CFFIRMAMUNT , aa.LEVNAAM, (select sum(ORDERNUMMER)from storenotesdetail where ORDERNUMMER=s.ORDERNUMMER) as summ "
 			       						+"from storenotesdetail s "
 			       						+"left join artikel_kostprijs a on a.ARTIKELCODE = s.ARTIKELCODE "
 			       						+"left join artikel_aankoop aa on aa.ARTIKELCODE = s.ARTIKELCODE "
-			       						+"where s.Leverancier = '102' and s.BESTELDATUM between '"+ datastart +"' and '"+ datastop+"'  and a.SOORT = '4'";
+			       						+"where s.Leverancier = '102' and s.LEVERINGSDATUMEFFECTIEF between '"+ datastart +"' and '"+ datastop+"'  and a.SOORT = '4'";
  		System.out.println(sql1);
- setinfo("przetwarzanie danych");
- 		System.out.println(info);
 			    		Statement st1 = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			    		ResultSet rs1 = st1.executeQuery(sql1);
 			    		while(rs1.next()){
 			    			
-			    			if (rs1.getInt("NR") != rememberWzNr){
-			    					countWZ++;
-			    					rememberWzNr = rs1.getInt("NR");
-			    					String datumWZ = rs1.getString("DATUM").substring(0,10); //String datumWZ = rs1.getString("datum");    ???????????????????
+			    			if (rs1.getInt("NR") != rememberRwNr){
+			    					countRW++;
+			    					rememberRwNr = rs1.getInt("NR");
+			    					String datumRW = rs1.getString("LEVERINGSDATUMEFFECTIEF").substring(0,10); //String datumRW = rs1.getString("datum");    ???????????????????
 			    					
-			    					Element wzWartosc = doc.createElement("WZWartosc");
-			    					wzWartosc.setAttribute("xmlns", "http://jpk.mf.gov.pl/wzor/2016/03/09/03093/");
-			    					WZ.appendChild(wzWartosc);
+			    					Element rwWartosc = doc.createElement("RWWartosc");
+			    					rwWartosc.setAttribute("xmlns", "http://jpk.mf.gov.pl/wzor/2016/03/09/03093/");
+			    					RW.appendChild(rwWartosc);
 					       		
-			    							wzNumber = "WZ " +rs1.getString("NR");
-			    							System.out.println("Detected WZ with Number: "+ wzNumber);
+			    							rwNumber = "RW " +rs1.getString("NR");
+			    							System.out.println("Detected RW with Number: "+ rwNumber);
 			    							
-					    				Element NumerWZ = doc.createElement("NumerWZ");
-							       		NumerWZ.appendChild(doc.createTextNode(wzNumber));
-					    				wzWartosc.appendChild(NumerWZ);
+					    				Element NumerRW = doc.createElement("NumerRW");
+							       		NumerRW.appendChild(doc.createTextNode(rwNumber));
+					    				rwWartosc.appendChild(NumerRW);
 					    										       							    						
-							       		Element DataWZ = doc.createElement("DataWZ");
-							       		DataWZ.appendChild(doc.createTextNode(rs1.getString("BESTELDATUM").substring(0,4) +"-"+rs1.getString("BESTELDATUM").substring(5,7)+"-"+rs1.getString("BESTELDATUM").substring(8,10)));
-							       		//DataWZ.appendChild(doc.createTextNode(rs1.getString("WzMadeDay").substring(0,4) +"-"+rs1.getString("WzMadeDay").substring(5,7)+"-"+rs1.getString("WzMadeDay").substring(8,10)));
+							       		Element DataRW = doc.createElement("DataRW");
+							       		DataRW.appendChild(doc.createTextNode(rs1.getString("LEVERINGSDATUMINGAVERECEPTIE").substring(0,4) +"-"+rs1.getString("LEVERINGSDATUMINGAVERECEPTIE").substring(5,7)+"-"+rs1.getString("LEVERINGSDATUMINGAVERECEPTIE").substring(8,10)));
+							       		//DataRW.appendChild(doc.createTextNode(rs1.getString("RwMadeDay").substring(0,4) +"-"+rs1.getString("RwMadeDay").substring(5,7)+"-"+rs1.getString("RwMadeDay").substring(8,10)));
 							       		//?????????????????
-							       		wzWartosc.appendChild(DataWZ);
+							       		rwWartosc.appendChild(DataRW);
 						       		
 						       		
 								       		// if munt <> PLN  then search currency exchange that day and convert the total
@@ -308,86 +306,90 @@ setinfo("tworzenie sql");
 								       		if(rs1.getString("CFFIRMAMUNT").equals("PLN")){  //if(rs1.getString("munt").equals("PLN")){
 								       			strCena = rs1.getString("summ");
 								       			
-								       		}else{strCena = ConvertValutaToPLN(rs1.getString("CFFIRMAMUNT"), rs1.getString("summ"), datumWZ);
-								       		//}else{strCena = ConvertValutaToPLN(rs1.getString("munt"), rs1.getString("summ"), datumWZ);
+								       		}else{strCena = ConvertValutaToPLN(rs1.getString("CFFIRMAMUNT"), rs1.getString("summ"), datumRW);
+								       		//}else{strCena = ConvertValutaToPLN(rs1.getString("munt"), rs1.getString("summ"), datumRW);
 									       				
 								       		}// end else if
 								       		
 								       		BigDecimal bdAmount = new BigDecimal(strCena);
 								       		bdAmount = bdAmount.setScale(2, BigDecimal.ROUND_HALF_UP);
-								       		totalamountWZ = totalamountWZ.add(bdAmount) ;
+								       		totalamountRW = totalamountRW.add(bdAmount) ;
 								       		
-							       		Element WartoscWZ = doc.createElement("WartoscWZ");
+							       		Element WartoscRW = doc.createElement("WartoscRW");
 							       		
-							       		WartoscWZ.appendChild(doc.createTextNode(strCena));
-							       		wzWartosc.appendChild(WartoscWZ);
+							       		WartoscRW.appendChild(doc.createTextNode(strCena));
+							       		rwWartosc.appendChild(WartoscRW);
 						       		
-							       			//add totaal to final sumation of all WZ
+							       			//add totaal to final sumation of all RW
 						       		
-							       		Element DataWydaniaWZ = doc.createElement("DataWydaniaWZ");
-							       		DataWydaniaWZ.appendChild(doc.createTextNode(datumWZ));
-							       		wzWartosc.appendChild(DataWydaniaWZ);
+							       		Element DataWydaniaRW = doc.createElement("DataWydaniaRW");
+							       		DataWydaniaRW.appendChild(doc.createTextNode(datumRW));
+							       		rwWartosc.appendChild(DataWydaniaRW);
 						       		
-							       		Element OdbiorcaWZ = doc.createElement("OdbiorcaWZ");
-							       		OdbiorcaWZ.appendChild(doc.createTextNode(rs1.getString("LEVNAAM")));
-							       		wzWartosc.appendChild(OdbiorcaWZ);
+							       		Element SkadRW = doc.createElement("SkadRW");
+							       		SkadRW.appendChild(doc.createTextNode(rs1.getString("LEVNAAM")));
+							       		rwWartosc.appendChild(SkadRW);
+							       		
+							       		Element DokadRW = doc.createElement("DokadRW");
+							       		DokadRW.appendChild(doc.createTextNode(/*rs1.getString()*/"do uzupalnienia"));
+							       		rwWartosc.appendChild(DokadRW);
 						       		
 							       		//optional childs if needed to be add
 							       		
-//							       		Element NumerFaWZ = doc.createElement("NumerFaWZ");
-//							       		NumerFaWZ.appendChild(doc.createTextNode("8960000138"));
-//							       		wzWartosc.appendChild(NumerFaWZ);
+//							       		Element NumerFaRW = doc.createElement("NumerFaRW");
+//							       		NumerFaRW.appendChild(doc.createTextNode("8960000138"));
+//							       		rwWartosc.appendChild(NumerFaRW);
 //						       		
-//							       		Element DataFaWZ = doc.createElement("DataFaWZ");
-//							       		DataFaWZ.appendChild(doc.createTextNode("8960000138"));
-//							       		wzWartosc.appendChild(DataFaWZ);
+//							       		Element DataFaRW = doc.createElement("DataFaRW");
+//							       		DataFaRW.appendChild(doc.createTextNode("8960000138"));
+//							       		rwWartosc.appendChild(DataFaRW);
 //				    				
 			    				
-			    			} //ENDIF for WZWartosz
+			    			} //ENDIF for RWWartosz
 			    		} //END WHILE
 			    		
 			    		rs1.beforeFirst();
 			    		
-			    		// WZWIERSZ
+			    		// RWWIERSZ
 			    		while(rs1.next()){
 			    			
-			    			String datumWZ = rs1.getString("DATUM");//String datumWZ = rs1.getString("datum");   ???????????????????????????
+			    			String datumRW = rs1.getString("LEVERINGSDATUMEFFECTIEF");//String datumRW = rs1.getString("datum");   ???????????????????????????
 			    			
-			    			Element WZWiersz = doc.createElement("WZWiersz");
-			    			WZWiersz.setAttribute("xmlns", "http://jpk.mf.gov.pl/wzor/2016/03/09/03093/");
-				       		WZ.appendChild(WZWiersz);
+			    			Element RWWiersz = doc.createElement("RWWiersz");
+			    			RWWiersz.setAttribute("xmlns", "http://jpk.mf.gov.pl/wzor/2016/03/09/03093/");
+				       		RW.appendChild(RWWiersz);
 				       		
-				       				wzNumber = "WZ " +rs1.getString("NR")+"/"+rs1.getString("SEQUENTIE");
+				       				rwNumber = "RW " +rs1.getString("NR")+"/"+rs1.getString("SEQUENTIE");
 				       				
-					       		Element Numer2WZ = doc.createElement("Numer2WZ");
-					       		Numer2WZ.appendChild(doc.createTextNode(wzNumber));
-					       		WZWiersz.appendChild(Numer2WZ);
+					       		Element Numer2RW = doc.createElement("Numer2RW");
+					       		Numer2RW.appendChild(doc.createTextNode(rwNumber));
+					       		RWWiersz.appendChild(Numer2RW);
 					       		
-					       		Element KodTowaruWZ = doc.createElement("KodTowaruWZ");
-					       		KodTowaruWZ.appendChild(doc.createTextNode(rs1.getString("ARTIKELCODE"))); //KodTowaruWZ.appendChild(doc.createTextNode(rs1.getString("Artikelcode")));
-					       		WZWiersz.appendChild(KodTowaruWZ);
+					       		Element KodTowaruRW = doc.createElement("KodTowaruRW");
+					       		KodTowaruRW.appendChild(doc.createTextNode(rs1.getString("ARTIKELCODE"))); //KodTowaruRW.appendChild(doc.createTextNode(rs1.getString("Artikelcode")));
+					       		RWWiersz.appendChild(KodTowaruRW);
 					       		
 					       		
 					       		
-					       		String StrNazwaTowaruWZ = rs1.getString("ARTIKELOMSCHRIJVING"); //String StrNazwaTowaruWZ = rs1.getString("Artikelomschrijving");
+					       		String StrNazwaTowaruRW = rs1.getString("ARTIKELOMSCHRIJVING"); //String StrNazwaTowaruRW = rs1.getString("Artikelomschrijving");
 				//					if (rs1.getString("Artikelcode").equals("M") )	{
 				//						String StrTekst = rs1.getString("Tekst");
-				//						System.out.println("for bonnummer "+ wzNumber + " we have following articledescription: "+ StrTekst);
-				//						StrNazwaTowaruWZ=StrTekst;
+				//						System.out.println("for bonnummer "+ rwNumber + " we have following articledescription: "+ StrTekst);
+				//						StrNazwaTowaruRW=StrTekst;
 				//					}
 											
 					       		
-					       		Element NazwaTowaruWZ = doc.createElement("NazwaTowaruWZ");
-					       		NazwaTowaruWZ.appendChild(doc.createTextNode(StrNazwaTowaruWZ));
-					       		WZWiersz.appendChild(NazwaTowaruWZ);
+					       		Element NazwaTowaruRW = doc.createElement("NazwaTowaruRW");
+					       		NazwaTowaruRW.appendChild(doc.createTextNode(StrNazwaTowaruRW));
+					       		RWWiersz.appendChild(NazwaTowaruRW);
 					       		
-					       		Element IloscWydanaWZ = doc.createElement("IloscWydanaWZ");
-					       		IloscWydanaWZ.appendChild(doc.createTextNode(rs1.getString("GELEVERD"))); //IloscWydanaWZ.appendChild(doc.createTextNode(rs1.getString("Geleverd")));
-					       		WZWiersz.appendChild(IloscWydanaWZ);
+					       		Element IloscWydanaRW = doc.createElement("IloscWydanaRW");
+					       		IloscWydanaRW.appendChild(doc.createTextNode(rs1.getString("GELEVERD"))); //IloscWydanaRW.appendChild(doc.createTextNode(rs1.getString("Geleverd")));
+					       		RWWiersz.appendChild(IloscWydanaRW);
 					       		
-					       		Element JednostkaMiaryWZ = doc.createElement("JednostkaMiaryWZ");
-					       		JednostkaMiaryWZ.appendChild(doc.createTextNode(rs1.getString("BESTELEENHEID"))); //JednostkaMiaryWZ.appendChild(doc.createTextNode(rs1.getString("besteleenheid")));
-					       		WZWiersz.appendChild(JednostkaMiaryWZ);
+					       		Element JednostkaMiaryRW = doc.createElement("JednostkaMiaryRW");
+					       		JednostkaMiaryRW.appendChild(doc.createTextNode(rs1.getString("BESTELEENHEID"))); //JednostkaMiaryRW.appendChild(doc.createTextNode(rs1.getString("besteleenheid")));
+					       		RWWiersz.appendChild(JednostkaMiaryRW);
 					       		
 						       		// if munt <> PLN  then search currency exchange that day and convert the total
 						 		String strCena = null;
@@ -395,12 +397,12 @@ setinfo("tworzenie sql");
 						       		if(rs1.getString("CFFIRMAMUNT").equals("PLN")){
 						       			strCena = rs1.getString("MATERIAAL");
 						       		}else{
-						       			strCena = ConvertValutaToPLN(rs1.getString("CFFIRMAMUNT"), rs1.getString("MATERIAAL"), datumWZ);
+						       			strCena = ConvertValutaToPLN(rs1.getString("CFFIRMAMUNT"), rs1.getString("MATERIAAL"), datumRW);
 						       		}// end else if
 					       		
-					       		Element CenaJednWZ = doc.createElement("CenaJednWZ");
-					       		CenaJednWZ.appendChild(doc.createTextNode(strCena));
-					       		WZWiersz.appendChild(CenaJednWZ);
+					       		Element CenaJednRW = doc.createElement("CenaJednRW");
+					       		CenaJednRW.appendChild(doc.createTextNode(strCena));
+					       		RWWiersz.appendChild(CenaJednRW);
 					       		
 						       		BigDecimal bdprice = new BigDecimal(strCena);
 						       				bdprice = bdprice.setScale(2,BigDecimal.ROUND_UP);
@@ -408,9 +410,9 @@ setinfo("tworzenie sql");
 						       		BigDecimal total = bdprice.multiply(bdqty);
 						       				total = total.setScale(2,BigDecimal.ROUND_UP);
 					       		
-					       		Element WartoscPozycjiWZ = doc.createElement("WartoscPozycjiWZ");
-					       		WartoscPozycjiWZ.appendChild(doc.createTextNode(total.toString()));
-					       		WZWiersz.appendChild(WartoscPozycjiWZ);
+					       		Element WartoscPozycjiRW = doc.createElement("WartoscPozycjiRW");
+					       		WartoscPozycjiRW.appendChild(doc.createTextNode(total.toString()));
+					       		RWWiersz.appendChild(WartoscPozycjiRW);
 					       		
 				    			
 			    			
@@ -422,18 +424,18 @@ setinfo("tworzenie sql");
 			    			
 			    		} //END WHILE
 			    		
-			    		Element WZCtrl = doc.createElement("WZCtrl");
-			       		WZ.appendChild(WZCtrl);
+			    		Element RWCtrl = doc.createElement("RWCtrl");
+			       		RW.appendChild(RWCtrl);
 			    		
-			       		Element LiczbaWZ = doc.createElement("LiczbaWZ");
-			       		LiczbaWZ.appendChild(doc.createTextNode(String.valueOf(countWZ)));
-			       		WZCtrl.appendChild(LiczbaWZ);
+			       		Element LiczbaRW = doc.createElement("LiczbaRW");
+			       		LiczbaRW.appendChild(doc.createTextNode(String.valueOf(countRW)));
+			       		RWCtrl.appendChild(LiczbaRW);
 			       		
 			       		
-			       		totalamountWZ = totalamountWZ.setScale(2,BigDecimal.ROUND_UP);
-			       		Element SumaWZ = doc.createElement("SumaWZ");
-			       		SumaWZ.appendChild(doc.createTextNode(totalamountWZ.toString()));
-			       		WZCtrl.appendChild(SumaWZ);
+			       		totalamountRW = totalamountRW.setScale(2,BigDecimal.ROUND_UP);
+			       		Element SumaRW = doc.createElement("SumaRW");
+			       		SumaRW.appendChild(doc.createTextNode(totalamountRW.toString()));
+			       		RWCtrl.appendChild(SumaRW);
 			    		
 			    		
 			    		
@@ -464,13 +466,13 @@ setinfo("tworzenie sql");
 private static Document PZ(Document doc, Element root, String start , String stop) throws SQLException, ParseException{
 		    	
 		    	BigDecimal totalamountPZ = BigDecimal.ZERO;
-		    	int countPZ = 0;   //counting the numbers of WZ`s
+		    	int countPZ = 0;   //counting the numbers of RW`s
 		    	
 		    	int oldPzNr = 0;
 		    	
 		    	
 System.out.println("tworzenie sql dla PZ");		    	
-		    	
+setinfo("create sql to PZ from magazin 2");		    	
 		    	
 		    	Element PZ = doc.createElement("tns:PZ");
 			    	root.appendChild(PZ);	           
@@ -553,7 +555,7 @@ System.out.println("przetwarzanie PZ");
 		    			totalamountPZ = totalamountPZ.setScale(2,BigDecimal.ROUND_UP);
 			    		rs1.beforeFirst();
 			    		
-			    		// WZWIERSZ
+			    		// RWWIERSZ
 			    		while(rs1.next()){
 			    			
 			    			if (rs1.getString("code").equals("A")){
@@ -593,7 +595,7 @@ System.out.println("przetwarzanie PZ");
 			       		PZCtrl.appendChild(LiczbaPZ);
 			       		
 			       		
-			       		Element SumaPZ = doc.createElement("SumaWZ");
+			       		Element SumaPZ = doc.createElement("SumaRW");
 			       		SumaPZ.appendChild(doc.createTextNode(totalamountPZ.toString()));
 			       		PZCtrl.appendChild(SumaPZ);
 			    		
@@ -654,13 +656,13 @@ private static Document PZWartosc(Document doc, Element root, String pzNumber , 
 		
    		//optional childs if needed to be add
    		
-//   		Element NumerFaWZ = doc.createElement("NumerFaWZ");
-//   		NumerFaWZ.appendChild(doc.createTextNode("8960000138"));
-//   		wzWartosc.appendChild(NumerFaWZ);
+//   		Element NumerFaRW = doc.createElement("NumerFaRW");
+//   		NumerFaRW.appendChild(doc.createTextNode("8960000138"));
+//   		rwWartosc.appendChild(NumerFaRW);
 //		
-//   		Element DataFaWZ = doc.createElement("DataFaWZ");
-//   		DataFaWZ.appendChild(doc.createTextNode("8960000138"));
-//   		wzWartosc.appendChild(DataFaWZ);
+//   		Element DataFaRW = doc.createElement("DataFaRW");
+//   		DataFaRW.appendChild(doc.createTextNode("8960000138"));
+//   		rwWartosc.appendChild(DataFaRW);
 	
 	
 	return doc;

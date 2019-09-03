@@ -8,6 +8,7 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
+import java.lang.management.ThreadInfo;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -38,6 +39,8 @@ import XML.jpk_mag_2;
 import XML.jpk_mag_main;
 
 import javax.swing.event.AncestorListener;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.swing.event.AncestorEvent;
 import javax.swing.SwingConstants;
 import javax.swing.JCheckBox;
@@ -54,38 +57,45 @@ public class mainWindowStart extends JFrame {
 	private static JPanel contentPane;
 	private JLabel lblWprowadOczekiwanLiczb;
 	private final ButtonGroup buttonGroup = new ButtonGroup();
-	private JPanel PaneInfo;
+	private static JLabel lblerrors;
+	private static JLabel lblchanges;
+	private static JButton analizaGodzin;
 	
 //---------------------------------------------------------------------------------------------
-	public static String info="bnm";
+	public static String info;
 	public static void setinfo(String inf){
 		info=inf;
 	}
 	public static String getinfo(){
 		return info;
 	}
+	public static String error;
+	public static void seterror(String tfe){
+		error=tfe;
+	}
+	public static String geterror(){
+		return error;
+	}
 
-/*	-------------------- My thread to change in programm ----------------------
-	public static void informationsy (){
-		Thread th = new Thread(){
+//	-------------------- My thread to change in programm ----------------------
+	public static void informations (){
+		Thread thinfo = new Thread(){
 			public void run(){
 				try {
 					
-					changes.main();
 					
-					for(;;){
+					
+					while(analizaGodzin.isEnabled()==false)
+					{
 						Calendar cal = new GregorianCalendar();
 						int sec = cal.get(Calendar.SECOND);
-						System.out.println("W¹tek czas "+sec+"  "+info);
-						
-						main(null);
-						try {
-							
-						} catch (Exception e) {
-							e.printStackTrace();
-						}
+					//	System.out.println("W¹tek czas "+sec+"  "+info);
+						lblchanges.setText(info);
+						lblerrors.setText(error);
 					
-					sleep(5000);
+
+					
+					sleep(2000);
 					}
 
 
@@ -94,10 +104,10 @@ public class mainWindowStart extends JFrame {
 				}
 			}
 		};
-		th.start();
+		thinfo.start();
 		
 	}
-*/	
+	
 //**************** method for date stop and start ************************
 	/**
 	 	* @param datastart	create xml between datastart and datastop 
@@ -176,7 +186,7 @@ public class mainWindowStart extends JFrame {
 		setResizable(false);
 		setTitle("JPK_MAG              CUB4U");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 485, 387);
+		setBounds(100, 100, 485, 519);
 		contentPane = new JPanel();
 		contentPane.setBackground(SystemColor.menu);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -268,30 +278,46 @@ public class mainWindowStart extends JFrame {
 		contentPane.add(rdbtnCreataXmlFrom);
 	
 		JLabel lblCreateXmlFrom = new JLabel("Create xml from magazin:");
-		lblCreateXmlFrom.setBounds(111, 204, 158, 20);
+		lblCreateXmlFrom.setBounds(144, 204, 158, 20);
 		lblCreateXmlFrom.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		lblCreateXmlFrom.setHorizontalAlignment(SwingConstants.CENTER);
 		contentPane.add(lblCreateXmlFrom);
 		
 		JCheckBox chckbxMagazinMain = new JCheckBox("Magazin Main");
-		chckbxMagazinMain.setBounds(143, 231, 126, 23);
+		chckbxMagazinMain.setBounds(176, 231, 126, 23);
 		chckbxMagazinMain.setSelected(true);
 		contentPane.add(chckbxMagazinMain);
 		
 		JCheckBox chckbxMagazin_2 = new JCheckBox("Magazin 2");
-		chckbxMagazin_2.setBounds(143, 257, 126, 23);
+		chckbxMagazin_2.setBounds(176, 257, 126, 23);
 		chckbxMagazin_2.setSelected(true);
 		contentPane.add(chckbxMagazin_2);
 		
-		JButton analizaGodzin = new JButton("Start JPK");
-		analizaGodzin.setBounds(99, 291, 232, 38);
+		lblchanges = new JLabel("cos tam");
+		lblchanges.setBounds(38, 355, 396, 14);
+		contentPane.add(lblchanges);
+		
+		
+		lblerrors = new JLabel("b\u0142\u0119dy");
+		lblerrors.setVerticalAlignment(SwingConstants.TOP);
+		lblerrors.setBounds(38, 405, 396, 86);
+		contentPane.add(lblerrors);
+		
+		analizaGodzin = new JButton("Start JPK");
+		analizaGodzin.setBounds(107, 287, 232, 38);
 		analizaGodzin.setFont(new Font("Tahoma", Font.PLAIN, 11));
 		analizaGodzin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) 
 			{
 			
 			System.out.println("Start JPK_MAG");
-								
+			analizaGodzin.setEnabled(false);
+			informations ();
+				new Thread(new Runnable() {			//Thread to show changes in program in GUI
+					
+					@Override
+					public void run() {
+						
 					if(rdbtnCreateXmlFor.isSelected())
 					{	
 						String datum;
@@ -376,17 +402,34 @@ public class mainWindowStart extends JFrame {
 								e.printStackTrace();
 							}
 							System.out.println("JPK_MAG done");
-							System.exit(0);	
+							analizaGodzin.setEnabled(true);
+							//System.exit(0);	
 									
 								}
 				
-					}		
+					}	
+					}
+				}).start();
+				
 			}
 		});
+		
 		contentPane.add(analizaGodzin);
-			
+		
+		JLabel lblErrors = new JLabel("Errors:");
+		lblErrors.setHorizontalAlignment(SwingConstants.CENTER);
+		lblErrors.setBounds(203, 380, 46, 14);
+		contentPane.add(lblErrors);
+		
+		JLabel lblChanges = new JLabel("Changes:");
+		lblChanges.setHorizontalAlignment(SwingConstants.CENTER);
+		lblChanges.setBounds(188, 336, 71, 14);
+		contentPane.add(lblChanges);
+		
 	}
-	
+		
+		
+			
 	private static boolean checkDatePattern(String data) {
 	    try {
 	        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
