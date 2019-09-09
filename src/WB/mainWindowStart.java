@@ -50,6 +50,7 @@ import javax.swing.JList;
 import com.toedter.calendar.JDateChooser;
 import com.toedter.calendar.JMonthChooser;
 import com.toedter.calendar.JYearChooser;
+import javax.swing.JTextArea;
 
 public class mainWindowStart extends JFrame {
 	
@@ -57,9 +58,10 @@ public class mainWindowStart extends JFrame {
 	private static JPanel contentPane;
 	private JLabel lblWprowadOczekiwanLiczb;
 	private final ButtonGroup buttonGroup = new ButtonGroup();
-	private static JLabel lblerrors;
 	private static JLabel lblchanges;
 	private static JButton analizaGodzin;
+	private static Thread thinfo;
+	public static JTextArea textArea;
 	
 //---------------------------------------------------------------------------------------------
 	public static String info;
@@ -79,7 +81,7 @@ public class mainWindowStart extends JFrame {
 
 //	-------------------- My thread to change in programm ----------------------
 	public static void informations (){
-		Thread thinfo = new Thread(){
+		thinfo = new Thread(){
 			public void run(){
 				try {
 					
@@ -91,16 +93,16 @@ public class mainWindowStart extends JFrame {
 						int sec = cal.get(Calendar.SECOND);
 					//	System.out.println("W¹tek czas "+sec+"  "+info);
 						lblchanges.setText(info);
-						lblerrors.setText(error);
-					
+						textArea.setText(error);
 
 					
 					sleep(2000);
 					}
 
-
+					
 				} catch (Exception e) {
 					e.printStackTrace();
+					
 				}
 			}
 		};
@@ -120,7 +122,7 @@ public class mainWindowStart extends JFrame {
 	public static  String datastop;
 
 	public static void setdatastart_1(String dat){
-		datastart = dat+"-29";
+		datastart = dat+"-01";
 		System.out.println("ustawiono date: "+ datastart);
 	}
 	
@@ -130,7 +132,7 @@ public class mainWindowStart extends JFrame {
 
 	public static void setdatastop_1(String dat){
 		int year = Integer.parseInt(dat.substring(0, 4));
-		int mount = Integer.parseInt(dat.substring(6, 7))-1;
+		int mount = Integer.parseInt(dat.substring(5, 7))-1;
 		Calendar kalendarz = new GregorianCalendar(year,mount,1);
 		int numberday= kalendarz.getActualMaximum(Calendar.DAY_OF_MONTH);	
 		datastop = dat+"-"+numberday;
@@ -293,15 +295,15 @@ public class mainWindowStart extends JFrame {
 		chckbxMagazin_2.setSelected(true);
 		contentPane.add(chckbxMagazin_2);
 		
-		lblchanges = new JLabel("cos tam");
+		lblchanges = new JLabel("");
 		lblchanges.setBounds(38, 355, 396, 14);
 		contentPane.add(lblchanges);
 		
-		
-		lblerrors = new JLabel("b\u0142\u0119dy");
-		lblerrors.setVerticalAlignment(SwingConstants.TOP);
-		lblerrors.setBounds(38, 405, 396, 86);
-		contentPane.add(lblerrors);
+		textArea = new JTextArea();
+		textArea.setBackground(SystemColor.control);
+		textArea.setBounds(38, 405, 406, 75);
+		textArea.setLineWrap(true);
+		contentPane.add(textArea);
 		
 		analizaGodzin = new JButton("Start JPK");
 		analizaGodzin.setBounds(107, 287, 232, 38);
@@ -312,7 +314,7 @@ public class mainWindowStart extends JFrame {
 			
 			System.out.println("Start JPK_MAG");
 			analizaGodzin.setEnabled(false);
-			informations ();
+				informations ();
 				new Thread(new Runnable() {			//Thread to show changes in program in GUI
 					
 					@Override
@@ -403,11 +405,19 @@ public class mainWindowStart extends JFrame {
 							}
 							System.out.println("JPK_MAG done");
 							analizaGodzin.setEnabled(true);
-							//System.exit(0);	
+
+							try {
+								Thread.sleep(2001);
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							System.exit(0);	
 									
 								}
 				
-					}	
+					}
+					
 					}
 				}).start();
 				
@@ -425,6 +435,10 @@ public class mainWindowStart extends JFrame {
 		lblChanges.setHorizontalAlignment(SwingConstants.CENTER);
 		lblChanges.setBounds(188, 336, 71, 14);
 		contentPane.add(lblChanges);
+		
+		
+		
+		
 		
 	}
 		

@@ -7,11 +7,13 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import WB.loop_to_jpk;
 import WB.mainWindowStart;
 
 //import PDF.Parameters;
 
 public class Parameters extends mainWindowStart {
+//public class Parameters extends loop_to_jpk {
 	
 	
 	
@@ -63,6 +65,7 @@ public class Parameters extends mainWindowStart {
 	
 	public static void createDirectory(){
 		String path = getPath();
+		System.out.println(path);
 		File theDir = new File(path);
 		// if the directory does not exist, create it
 		if (!theDir.exists()) {
@@ -110,6 +113,7 @@ public static String getPath(){
 		e.printStackTrace();
 	}
 String path1 = Parameters.getPathToSaveHours()+"/"+directoryname+"/";
+System.out.println(path1);
 File theDir = new File(path1);
 // if the directory does not exist, create it
 if (!theDir.exists()) {

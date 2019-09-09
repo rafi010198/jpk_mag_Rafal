@@ -34,6 +34,9 @@ public static void main() throws SQLException, ParseException {
 		        	
 		        	
 		    		// configure directory and files
+		        	System.out.println(datastart);
+		        	System.out.println(datastop);
+		        	
 		        	Parameters.createDirectory();
 		        	File f = Parameters.createFile("jpk_MAG.xml");
 		        	
@@ -104,7 +107,7 @@ setinfo("create the xml data");
 		            tfe.printStackTrace();
 		        }
 		        
-	
+		        setinfo("Done JPK for Magazine Main");
 		    }
 		    
 		    
@@ -267,8 +270,8 @@ setinfo("create sql to WZ from magazin MAIN");
 			       		System.out.println(sql1);
 			    		Statement st1 = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			    		ResultSet rs1 = st1.executeQuery(sql1);
+setinfo("Create WZWartosc to xml");	
 			    		while(rs1.next()){
-			    			
 			    			if (rs1.getInt("NR") != rememberWzNr){
 			    					countWZ++;
 			    					rememberWzNr = rs1.getInt("NR");
@@ -336,6 +339,7 @@ setinfo("create sql to WZ from magazin MAIN");
 			    		rs1.beforeFirst();
 			    		
 			    		// WZWIERSZ
+setinfo("Create WZWiersz to xml");	
 			    		while(rs1.next()){
 			    			
 			    			String datumWZ = rs1.getString("datum");
@@ -464,16 +468,19 @@ private static Document PZ(Document doc, Element root, String start , String sto
 			            
 			       		//  Podmiot1
 setinfo("create sql to PZ from magazin MAIN");	
+System.out.println("create sql to PZ from magazin MAIN");	
 			       		String sql1 = "select distinct bonnr, volgnummer,leverancier, ordernummer,sequentie,aantal, ARTIKELCODE , artikelomschrijving ,"
 			       				+ "besteld, geleverd , cfreceptiedatum receptiedatum,besteleenheid, cfeffleveringsdatum leveringsdatum, "
 			       				+ "(select verschaffingscode from artikel_algemeen where ARTIKELCODE = r.ARTIKELCODE)as code, "
 			       				+ "(select munt from bestellingdetail b where leverancier = r.leverancier and ordernummer = r.ordernummer and SEQUENTIE = r.sequentie) as munt, "
 			       				+ "(select eenheidsprijs from bestellingdetail b where leverancier = r.leverancier and ordernummer = r.ordernummer and SEQUENTIE = r.sequentie) as eenheidsprijs, "
 			       				+ "(select naam from leverancier where leveranciernr = r.LEVERANCIER) as name "
-			       				+ "from receptiedetail r where CFEFFLEVERINGSDATUM  between '"+ datastart +"' and '"+ datastop +"'order by Bonnr ,Volgnummer + 0 asc";
+			       				+ "from receptiedetail r where CFEFFLEVERINGSDATUM  between '"+ datastart +"' and '"+ datastop +""
+			       				+ "' and ARTIKELCODE is not null and r.ARTIKELOMSCHRIJVING is not null order by Bonnr ,Volgnummer + 0 asc";
 
 			    		Statement st1 = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			    		ResultSet rs1 = st1.executeQuery(sql1);
+setinfo("Create PZWartosc to xml");	
 			    		while(rs1.next()){
 			    			
 			    			int bonnr = rs1.getInt("bonnr");
@@ -671,7 +678,7 @@ private static Document PZWartosc(Document doc, Element root, String pzNumber , 
  * @return part of document
  */
 private static Document PZWiersz(Document doc, Element root, String PZnumber , String articlecode, String description, String qty , String unit ,String unitprice , String total){
-	
+setinfo("Create PZWiersz to xml");	
 	Element PZWiersz = doc.createElement("PZWiersz");
 	PZWiersz.setAttribute("xmlns", "http://jpk.mf.gov.pl/wzor/2016/03/09/03093/");
 	root.appendChild(PZWiersz);
@@ -816,5 +823,5 @@ private static String cumulInitPlusPriceTimeQty(String init, String unitprice, S
 	
 }
 
-					       		
+
 }

@@ -31,17 +31,18 @@ public static void main() throws SQLException, ParseException {
 	
 		        try {
 		        	
+		        	System.out.println(datastart);
+		        	System.out.println(datastop);
+		        	System.out.println(directoryname);
 		        	
 		    		// configure directory and files
 		        	Parameters.createDirectory();
 		        	File f = Parameters.createFile("jpk_MAG_2.xml");
-		        	
-					
-					
+
 					// create the xml data
 		        	
 System.out.println("create the xml data");
-setinfo("create the xml");
+setinfo("create the xml for magazine 2");
 
 		            DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
 		            DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
@@ -91,11 +92,7 @@ setinfo("create the xml");
 		            transformer.setOutputProperty("http://www.oracle.com/xml/is-standalone", "yes");
 		            transformer.transform(domSource, streamResult);
 	
-		 
-	
 		            System.out.println("Done creating XML File");
-	
-		 
 	
 		        } catch (ParserConfigurationException pce) {
 		        	seterror(pce.toString());
@@ -106,7 +103,7 @@ setinfo("create the xml");
 		            tfe.printStackTrace();
 		        }
 		        
-	
+		        setinfo("Done JPK for Magazine 2");	
 		    }
 		    
 		    
@@ -257,7 +254,6 @@ private static Document RW(Document doc, Element root, String start , String sto
 		    	int countRW = 0;   //counting the numbers of RW`s
 		    	String rwNumber = null;
 		    	int rememberRwNr = 0;
-		    	
 		    	Element RW = doc.createElement("tns:RW");
 			       root.appendChild(RW);	           
 			            
@@ -265,22 +261,31 @@ private static Document RW(Document doc, Element root, String start , String sto
 
 setinfo("create sql to RW from magazin 2");
 
-			       		String sql1 = " select s.ORDERNUMMER as NR,s.SEQUENTIE, s.ARTIKELCODE,s.ARTIKELOMSCHRIJVING,s.BESTELD, s.LEVERINGSDATUMEFFECTIEF, s.LEVERINGSDATUMINGAVERECEPTIE, s.BESTELEENHEID,s.GELEVERD,"
-			       						+"a.MATERIAAL,a.CFKOSTPRIJS,a.CFFIRMAMUNT , aa.LEVNAAM, (select sum(ORDERNUMMER)from storenotesdetail where ORDERNUMMER=s.ORDERNUMMER) as summ "
-			       						+"from storenotesdetail s "
-			       						+"left join artikel_kostprijs a on a.ARTIKELCODE = s.ARTIKELCODE "
-			       						+"left join artikel_aankoop aa on aa.ARTIKELCODE = s.ARTIKELCODE "
-			       						+"where s.Leverancier = '102' and s.LEVERINGSDATUMEFFECTIEF between '"+ datastart +"' and '"+ datastop+"'  and a.SOORT = '4'";
+			       		
+	String sql1 = "select s.ORDERNUMMER as NR,s.SEQUENTIE, s.ARTIKELCODE,s.ARTIKELOMSCHRIJVING,s.BESTELD, s.LEVERINGSDATUMEFFECTIEF, s.LEVERINGSDATUMINGAVERECEPTIE, "
+				+"s.BESTELEENHEID,s.GELEVERD, a.MATERIAAL,a.CFKOSTPRIJS,a.CFFIRMAMUNT , aa.LEVNAAM, aal.VERSCHAFFINGSCODE, aa.LEVMANPLANNING,"
+				+"(select sum(a.MATERIAAL * s.GELEVERD)from storenotesdetail s left join artikel_kostprijs a on a.ARTIKELCODE = s.ARTIKELCODE "
+				+"where NR=s.ORDERNUMMER and s.Leverancier = '102'   and  a.SOORT = '4' and s.LEVERINGSDATUMEFFECTIEF between '"+ datastart +"' and '"+ datastop+"') as summ "
+				+"from storenotesdetail s "
+				+"left join artikel_kostprijs a on a.ARTIKELCODE = s.ARTIKELCODE "
+				+"left join artikel_aankoop aa on aa.ARTIKELCODE = s.ARTIKELCODE "
+				+"left join artikel_algemeen aal on aal.ARTIKELCODE = s.ARTIKELCODE "
+				+"where s.Leverancier = '102'   and  a.SOORT = '4' and aal.VERSCHAFFINGSCODE='P' and s.LEVERINGSDATUMEFFECTIEF between '"+ datastart +"' and '"+ datastop+"' "
+				+"and aa.LEVMANPLANNING = '1' order by s.ORDERNUMMER,s.SEQUENTIE";
+			       		
+			       		
  		System.out.println(sql1);
 			    		Statement st1 = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			    		ResultSet rs1 = st1.executeQuery(sql1);
+			    	//	suma=rs1.getString("MATERIAAL");
+setinfo("create RWWartosc to xml");	
+System.out.println("create RWWartosc to xml");
 			    		while(rs1.next()){
-			    			
+			    		
 			    			if (rs1.getInt("NR") != rememberRwNr){
 			    					countRW++;
 			    					rememberRwNr = rs1.getInt("NR");
-			    					String datumRW = rs1.getString("LEVERINGSDATUMEFFECTIEF").substring(0,10); //String datumRW = rs1.getString("datum");    ???????????????????
-			    					
+			    					String datumRW = rs1.getString("LEVERINGSDATUMEFFECTIEF").substring(0,10); 
 			    					Element rwWartosc = doc.createElement("RWWartosc");
 			    					rwWartosc.setAttribute("xmlns", "http://jpk.mf.gov.pl/wzor/2016/03/09/03093/");
 			    					RW.appendChild(rwWartosc);
@@ -294,8 +299,6 @@ setinfo("create sql to RW from magazin 2");
 					    										       							    						
 							       		Element DataRW = doc.createElement("DataRW");
 							       		DataRW.appendChild(doc.createTextNode(rs1.getString("LEVERINGSDATUMINGAVERECEPTIE").substring(0,4) +"-"+rs1.getString("LEVERINGSDATUMINGAVERECEPTIE").substring(5,7)+"-"+rs1.getString("LEVERINGSDATUMINGAVERECEPTIE").substring(8,10)));
-							       		//DataRW.appendChild(doc.createTextNode(rs1.getString("RwMadeDay").substring(0,4) +"-"+rs1.getString("RwMadeDay").substring(5,7)+"-"+rs1.getString("RwMadeDay").substring(8,10)));
-							       		//?????????????????
 							       		rwWartosc.appendChild(DataRW);
 						       		
 						       		
@@ -303,11 +306,11 @@ setinfo("create sql to RW from magazin 2");
 								       		String strCena = null;
 								       	
 						       		
-								       		if(rs1.getString("CFFIRMAMUNT").equals("PLN")){  //if(rs1.getString("munt").equals("PLN")){
+								       		if(rs1.getString("CFFIRMAMUNT").equals("PLN")){  
 								       			strCena = rs1.getString("summ");
 								       			
 								       		}else{strCena = ConvertValutaToPLN(rs1.getString("CFFIRMAMUNT"), rs1.getString("summ"), datumRW);
-								       		//}else{strCena = ConvertValutaToPLN(rs1.getString("munt"), rs1.getString("summ"), datumRW);
+								       		
 									       				
 								       		}// end else if
 								       		
@@ -316,7 +319,6 @@ setinfo("create sql to RW from magazin 2");
 								       		totalamountRW = totalamountRW.add(bdAmount) ;
 								       		
 							       		Element WartoscRW = doc.createElement("WartoscRW");
-							       		
 							       		WartoscRW.appendChild(doc.createTextNode(strCena));
 							       		rwWartosc.appendChild(WartoscRW);
 						       		
@@ -331,7 +333,7 @@ setinfo("create sql to RW from magazin 2");
 							       		rwWartosc.appendChild(SkadRW);
 							       		
 							       		Element DokadRW = doc.createElement("DokadRW");
-							       		DokadRW.appendChild(doc.createTextNode(/*rs1.getString()*/"do uzupalnienia"));
+							       		DokadRW.appendChild(doc.createTextNode(/*rs1.getString()*/"Magazyn czêœci gotowych"));
 							       		rwWartosc.appendChild(DokadRW);
 						       		
 							       		//optional childs if needed to be add
@@ -343,14 +345,15 @@ setinfo("create sql to RW from magazin 2");
 //							       		Element DataFaRW = doc.createElement("DataFaRW");
 //							       		DataFaRW.appendChild(doc.createTextNode("8960000138"));
 //							       		rwWartosc.appendChild(DataFaRW);
-//				    				
-			    				
+							       		
+				    			
 			    			} //ENDIF for RWWartosz
 			    		} //END WHILE
 			    		
 			    		rs1.beforeFirst();
 			    		
 			    		// RWWIERSZ
+setinfo("create RWWiersz to xml");	
 			    		while(rs1.next()){
 			    			
 			    			String datumRW = rs1.getString("LEVERINGSDATUMEFFECTIEF");//String datumRW = rs1.getString("datum");   ???????????????????????????
@@ -358,7 +361,7 @@ setinfo("create sql to RW from magazin 2");
 			    			Element RWWiersz = doc.createElement("RWWiersz");
 			    			RWWiersz.setAttribute("xmlns", "http://jpk.mf.gov.pl/wzor/2016/03/09/03093/");
 				       		RW.appendChild(RWWiersz);
-				       		
+				       				
 				       				rwNumber = "RW " +rs1.getString("NR")+"/"+rs1.getString("SEQUENTIE");
 				       				
 					       		Element Numer2RW = doc.createElement("Numer2RW");
@@ -444,10 +447,10 @@ setinfo("create sql to RW from magazin 2");
 			    		rs1.close();
 			       		
 					       		
-					       		
-					       		
+			    		     		
+			    		 		
 					       		return doc;
-					       		
+			    		 				       		
 		    }
 
 
@@ -485,11 +488,14 @@ setinfo("create sql to PZ from magazin 2");
 			       				+"CFFIRMAMUNT as munt, CFKOSTPRIJS as eenheidsprijs, "
 			       				+"(select naam from leverancier where leveranciernr = rmd.LEVERANCIER) as name "
 			       				+"from receptie_magdetail rmd left join artikel_kostprijs ak on ak.ARTIKELCODE = rmd.artikelcode where cfreceptiedatum "
-			       				+"between '"+ datastart +"' and '"+ datastop +"' order by Bonnr ,Volgnummer + 0 asc";
+			       				+"between '"+ datastart +"' and '"+ datastop +"'"
+			       				+ "and ordernummer is not null and rmd.artikelcode is not null and artikelomschrijving is not null "
+			       				+"and geleverd is not null"
+			       				+ " order by Bonnr ,Volgnummer + 0 asc";
 			       		
-System.out.println("przetwarzanie PZ");	
 			    		Statement st1 = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			    		ResultSet rs1 = st1.executeQuery(sql1);
+setinfo("create PZWartosc to xml");				    		
 			    		while(rs1.next()){
 			    			
 			    			int bonnr = rs1.getInt("bonnr");
@@ -629,7 +635,7 @@ System.out.println("przetwarzanie PZ");
  * @return part of document
  */
 private static Document PZWartosc(Document doc, Element root, String pzNumber , String pzdatum, String amount, String leveringsdatum , String leverancier){
-	
+setinfo("create PZWartosc to xml");		
 	Element pzWartosc = doc.createElement("PZWartosc");
 	pzWartosc.setAttribute("xmlns", "http://jpk.mf.gov.pl/wzor/2016/03/09/03093/");
 	root.appendChild(pzWartosc);
@@ -687,7 +693,7 @@ private static Document PZWartosc(Document doc, Element root, String pzNumber , 
  * @return part of document
  */
 private static Document PZWiersz(Document doc, Element root, String PZnumber , String articlecode, String description, String qty , String unit ,String unitprice , String total){
-	
+setinfo("create PZWiersz to xml");	
 	Element PZWiersz = doc.createElement("PZWiersz");
 	PZWiersz.setAttribute("xmlns", "http://jpk.mf.gov.pl/wzor/2016/03/09/03093/");
 	root.appendChild(PZWiersz);
@@ -827,7 +833,7 @@ private static String cumulInitPlusPriceTimeQty(String init, String unitprice, S
 			total = total.add(bdinit);
 			total = total.setScale(2,BigDecimal.ROUND_UP);
 	
-	
+
 	return total.toString();
 	
 }
