@@ -270,7 +270,7 @@ setinfo("create sql to RW from magazin 2");
 				+"left join artikel_kostprijs a on a.ARTIKELCODE = s.ARTIKELCODE "
 				+"left join artikel_aankoop aa on aa.ARTIKELCODE = s.ARTIKELCODE "
 				+"left join artikel_algemeen aal on aal.ARTIKELCODE = s.ARTIKELCODE "
-				+"where s.Leverancier = '102'   and  a.SOORT = '4' and aal.VERSCHAFFINGSCODE='P' and s.LEVERINGSDATUMEFFECTIEF between '"+ datastart +"' and '"+ datastop+"' "
+				+"where s.Leverancier = '102'   and  a.SOORT = '4' and aal.VERSCHAFFINGSCODE='P' and s.LEVERINGSDATUMEFFECTIEF between '"+ start +"' and '"+ stop+"' "
 				+"and aa.LEVMANPLANNING = '1' order by s.ORDERNUMMER,s.SEQUENTIE";
 			       		
 			       		
@@ -292,7 +292,7 @@ System.out.println("create RWWartosc to xml");
 					       		
 			    							rwNumber = "RW " +rs1.getString("NR");
 			    							System.out.println("Detected RW with Number: "+ rwNumber);
-			    							
+setinfo("create RWWartosc to xml		"+rwNumber);		
 					    				Element NumerRW = doc.createElement("NumerRW");
 							       		NumerRW.appendChild(doc.createTextNode(rwNumber));
 					    				rwWartosc.appendChild(NumerRW);
@@ -488,7 +488,7 @@ setinfo("create sql to PZ from magazin 2");
 			       				+"CFFIRMAMUNT as munt, CFKOSTPRIJS as eenheidsprijs, "
 			       				+"(select naam from leverancier where leveranciernr = rmd.LEVERANCIER) as name "
 			       				+"from receptie_magdetail rmd left join artikel_kostprijs ak on ak.ARTIKELCODE = rmd.artikelcode where cfreceptiedatum "
-			       				+"between '"+ datastart +"' and '"+ datastop +"'"
+			       				+"between '"+ start +"' and '"+ stop +"'"
 			       				+ "and ordernummer is not null and rmd.artikelcode is not null and artikelomschrijving is not null "
 			       				+"and geleverd is not null"
 			       				+ " order by Bonnr ,Volgnummer + 0 asc";
@@ -503,7 +503,8 @@ setinfo("create PZWartosc to xml");
 			    			if (bonnr != oldPzNr && countPZ > 0 && code.equals("A") ){
 			    				 
 			    				    System.out.println("ADD 1 PZWartosc: "+pzNumber+" | " + pzDatum+" | "+pzAmount+" | "+pzLeveringsdatum + " | " + pzLeverancier  );
-			    					doc = PZWartosc(doc, PZ, pzNumber, pzDatum, pzAmount, pzLeveringsdatum, pzLeverancier);
+setinfo("create PZWartosc to xml		"+pzNumber);	
+			    				    doc = PZWartosc(doc, PZ, pzNumber, pzDatum, pzAmount, pzLeveringsdatum, pzLeverancier);
 			    				
 			    				
 			    			} //ENDIF writing a PZ WARTOSC BLOCK
@@ -588,7 +589,8 @@ setinfo("create PZWartosc to xml");
 					    			total = cumulInitPlusPriceTimeQty("0", unitprice, quantity, valuta, pzDatum);
 					    			
 					    			System.out.println("ADD PZWIERZ: "+pzNumber+" | " + articlecode+" | "+description+" | "+quantity + " | " + unit + " | " +unitprice + " | " + total);
-					    			 doc = PZWiersz(doc, PZ, pzNumber, articlecode, description, quantity, unit, unitprice, total);
+setinfo("create PZWiersz to xml		"+pzNumber); 
+					    			doc = PZWiersz(doc, PZ, pzNumber, articlecode, description, quantity, unit, unitprice, total);
 			    			}
 			    		} //END WHILE
 			    		

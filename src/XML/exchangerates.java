@@ -95,6 +95,7 @@ public class exchangerates {
  	    		} //end if
  	    	} //end if
  	    } catch (Exception e) {
+ 	    
  		e.printStackTrace();
  	    }
  	  }

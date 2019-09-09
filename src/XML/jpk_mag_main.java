@@ -266,7 +266,7 @@ private static Document WZ(Document doc, Element root, String start , String sto
 setinfo("create sql to WZ from magazin MAIN");	
 			       		String sql1 = "select distinct  Bonnr as NR, Volgnummer,datum, Cfregistratie as WzMadeDay, Klantnr, Artikelcode,Artikelomschrijving, Geleverd, besteleenheid,Eenheidsprijs,totaal,Klantnaam,munt, "
 			       				+ "tekst, (select SUM(distinct totaal) from leverbondetail where Bonnr = NR) as summ"
-			       				+ "	from leverbondetail  where datum between '"+ datastart +"' and '"+ datastop +"'  order by Bonnr ,Volgnummer + 0 ASC ";
+			       				+ "	from leverbondetail  where datum between '"+ start +"' and '"+ stop +"'  order by Bonnr ,Volgnummer + 0 ASC ";
 			       		System.out.println(sql1);
 			    		Statement st1 = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			    		ResultSet rs1 = st1.executeQuery(sql1);
@@ -283,6 +283,7 @@ setinfo("Create WZWartosc to xml");
 					       		
 			    							wzNumber = "WZ " +rs1.getString("NR");
 			    							System.out.println("Detected WZ with Number: "+ wzNumber);
+setinfo("Create WZWartosc to xml		"+ wzNumber);	
 			    							
 					    				Element NumerWZ = doc.createElement("NumerWZ");
 							       		NumerWZ.appendChild(doc.createTextNode(wzNumber));
@@ -364,6 +365,7 @@ setinfo("Create WZWiersz to xml");
 									if (rs1.getString("Artikelcode").equals("M") )	{
 										String StrTekst = rs1.getString("Tekst");
 										System.out.println("for bonnummer "+ wzNumber + " we have following articledescription: "+ StrTekst);
+setinfo("Create WZWiersz to xml			"+wzNumber);	
 										StrNazwaTowaruWZ=StrTekst;
 									}
 											
@@ -471,11 +473,11 @@ setinfo("create sql to PZ from magazin MAIN");
 System.out.println("create sql to PZ from magazin MAIN");	
 			       		String sql1 = "select distinct bonnr, volgnummer,leverancier, ordernummer,sequentie,aantal, ARTIKELCODE , artikelomschrijving ,"
 			       				+ "besteld, geleverd , cfreceptiedatum receptiedatum,besteleenheid, cfeffleveringsdatum leveringsdatum, "
-			       				+ "(select verschaffingscode from artikel_algemeen where ARTIKELCODE = r.ARTIKELCODE)as code, "
+			       				+ "(select verschaffingscode from artikel_algemeen where ARTIKELCODE = r.ARTIKELCODE and OMSCHRIJVING=r.ARTIKELOMSCHRIJVING)as code, "
 			       				+ "(select munt from bestellingdetail b where leverancier = r.leverancier and ordernummer = r.ordernummer and SEQUENTIE = r.sequentie) as munt, "
 			       				+ "(select eenheidsprijs from bestellingdetail b where leverancier = r.leverancier and ordernummer = r.ordernummer and SEQUENTIE = r.sequentie) as eenheidsprijs, "
 			       				+ "(select naam from leverancier where leveranciernr = r.LEVERANCIER) as name "
-			       				+ "from receptiedetail r where CFEFFLEVERINGSDATUM  between '"+ datastart +"' and '"+ datastop +""
+			       				+ "from receptiedetail r where CFEFFLEVERINGSDATUM  between '"+ start +"' and '"+ stop +""
 			       				+ "' and ARTIKELCODE is not null and r.ARTIKELOMSCHRIJVING is not null order by Bonnr ,Volgnummer + 0 asc";
 
 			    		Statement st1 = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
@@ -485,6 +487,7 @@ setinfo("Create PZWartosc to xml");
 			    			
 			    			int bonnr = rs1.getInt("bonnr");
 			    			String code = rs1.getString("code");
+setinfo("Create PZWartosc to xml		"+bonnr);	
 			    			if (bonnr != oldPzNr && countPZ > 0 && code.equals("A") ){
 			    				 
 			    				    System.out.println("ADD 1 PZWartosc: "+pzNumber+" | " + pzDatum+" | "+pzAmount+" | "+pzLeveringsdatum + " | " + pzLeverancier  );
@@ -573,7 +576,8 @@ setinfo("Create PZWartosc to xml");
 					    			total = cumulInitPlusPriceTimeQty("0", unitprice, quantity, valuta, pzDatum);
 					    			
 					    			System.out.println("ADD PZWIERZ: "+pzNumber+" | " + articlecode+" | "+description+" | "+quantity + " | " + unit + " | " +unitprice + " | " + total);
-					    			 doc = PZWiersz(doc, PZ, pzNumber, articlecode, description, quantity, unit, unitprice, total);
+setinfo("Create PZWiersz to xml		"+pzNumber);						    			 
+					    			doc = PZWiersz(doc, PZ, pzNumber, articlecode, description, quantity, unit, unitprice, total);
 			    			}
 			    		} //END WHILE
 			    		

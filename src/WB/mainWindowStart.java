@@ -79,7 +79,7 @@ public class mainWindowStart extends JFrame {
 		return error;
 	}
 
-//	-------------------- My thread to change in programm ----------------------
+//	-------------------- My thread to show change in programm ----------------------
 	public static void informations (){
 		thinfo = new Thread(){
 			public void run(){
@@ -89,18 +89,14 @@ public class mainWindowStart extends JFrame {
 					
 					while(analizaGodzin.isEnabled()==false)
 					{
-						Calendar cal = new GregorianCalendar();
-						int sec = cal.get(Calendar.SECOND);
-					//	System.out.println("W¹tek czas "+sec+"  "+info);
 						lblchanges.setText(info);
 						textArea.setText(error);
-
-					
 					sleep(2000);
 					}
 
 					
 				} catch (Exception e) {
+					seterror(e.toString());
 					e.printStackTrace();
 					
 				}
@@ -168,6 +164,7 @@ public class mainWindowStart extends JFrame {
 					frame.setVisible(true);
 					
 				} catch (Exception e) {
+					seterror(e.toString());
 					e.printStackTrace();
 				}
 			}
@@ -349,6 +346,7 @@ public class mainWindowStart extends JFrame {
 							
 						}
 						} catch (SQLException | ParseException e) {
+							seterror(e.toString());
 							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}	
@@ -388,36 +386,37 @@ public class mainWindowStart extends JFrame {
 									{
 										directoryname = "Magazyn_MCG_102";
 										jpk_mag_2.main();	
+										
 									}
+									
 									}
 									
 								catch (SQLException e) {
-									// TODO Auto-generated catch block
+									seterror(e.toString());
 									e.printStackTrace();
 								} catch (ParseException e) {
-									// TODO Auto-generated catch block
+									seterror(e.toString());
 									e.printStackTrace();
 								}
 								
 							} catch (DOMException e) {
-								// TODO Auto-generated catch block
+								seterror(e.toString());
 								e.printStackTrace();
 							}
 							System.out.println("JPK_MAG done");
-							analizaGodzin.setEnabled(true);
-
-							try {
-								Thread.sleep(2001);
-							} catch (InterruptedException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-							System.exit(0);	
 									
 								}
 				
 					}
-					
+					analizaGodzin.setEnabled(true);
+					try {
+								Thread.sleep(2001);
+							} catch (InterruptedException e) {
+								seterror(e.toString());
+								e.printStackTrace();
+							}
+					if (error.equals(null))
+					{		System.exit(0);	}
 					}
 				}).start();
 				

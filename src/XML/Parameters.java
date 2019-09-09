@@ -110,6 +110,7 @@ public static String getPath(){
 	try {
 		first = new SimpleDateFormat("yyyy-MM-dd").parse(datastart);
 	} catch (ParseException e) {
+		seterror(e.toString());
 		e.printStackTrace();
 	}
 String path1 = Parameters.getPathToSaveHours()+"/"+directoryname+"/";
@@ -124,7 +125,9 @@ if (!theDir.exists()) {
         //handle it
     }
 }
-String path2 = Parameters.getPathToSaveHours()+"/"+directoryname+"/RAPORT_"+setNameMounth(datastart)+"_"+datastart.substring(0,4)+"/";
+String year = datastart.substring(0,4);
+String mounth = datastart.substring(5, 7);
+String path2 = Parameters.getPathToSaveHours()+"/"+directoryname+"/RAPORT_"+year+"."+mounth+"_"+setNameMounth(datastart)+"_"+year+"/";
 //---------------------------------------------------------------------------------------------------
 	return path2;
 }
