@@ -292,7 +292,7 @@ System.out.println("create RWWartosc to xml");
 					       		
 			    							rwNumber = "RW " +rs1.getString("NR");
 			    							System.out.println("Detected RW with Number: "+ rwNumber);
-setinfo("create RWWartosc to xml		"+rwNumber);		
+setinfo("create RWWartosc to xml      "+rwNumber);		
 					    				Element NumerRW = doc.createElement("NumerRW");
 							       		NumerRW.appendChild(doc.createTextNode(rwNumber));
 					    				rwWartosc.appendChild(NumerRW);
@@ -484,7 +484,7 @@ setinfo("create sql to PZ from magazin 2");
 
 			       		String sql1 = "select bonnr,volgnummer,leverancier,ordernummer,sequentie,aantal,rmd.artikelcode,artikelomschrijving,"
 			       				+"besteld, geleverd,cfreceptiedatum as receptiedatum, besteleenheid, cfeffleveringsdatum as leveringsdatum, "
-			       				+"(select verschaffingscode from artikel_algemeen where ARTIKELCODE = rmd.artikelcode) as code, " 
+			       				+"(select verschaffingscode from artikel_algemeen where ARTIKELCODE = rmd.artikelcode and VERSCHAFFINGSCODE='P') as code, " 
 			       				+"CFFIRMAMUNT as munt, CFKOSTPRIJS as eenheidsprijs, "
 			       				+"(select naam from leverancier where leveranciernr = rmd.LEVERANCIER) as name "
 			       				+"from receptie_magdetail rmd left join artikel_kostprijs ak on ak.ARTIKELCODE = rmd.artikelcode where cfreceptiedatum "
@@ -500,16 +500,18 @@ setinfo("create PZWartosc to xml");
 			    			
 			    			int bonnr = rs1.getInt("bonnr");
 			    			String code = rs1.getString("code");
-			    			if (bonnr != oldPzNr && countPZ > 0 && code.equals("A") ){
+			    			if(code!=null)
+			    			{
+			    			if (bonnr != oldPzNr && countPZ > 0  ){
 			    				 
 			    				    System.out.println("ADD 1 PZWartosc: "+pzNumber+" | " + pzDatum+" | "+pzAmount+" | "+pzLeveringsdatum + " | " + pzLeverancier  );
-setinfo("create PZWartosc to xml		"+pzNumber);	
+setinfo("create PZWartosc to xml      "+pzNumber);	
 			    				    doc = PZWartosc(doc, PZ, pzNumber, pzDatum, pzAmount, pzLeveringsdatum, pzLeverancier);
 			    				
 			    				
 			    			} //ENDIF writing a PZ WARTOSC BLOCK
 			    			
-			    			if (bonnr == oldPzNr   && code.equals("A") ){
+			    			if (bonnr == oldPzNr ){
 			    				
 			    				// use this block to cummulate the prices of every single items of the PZ
 			    				
@@ -525,7 +527,7 @@ setinfo("create PZWartosc to xml		"+pzNumber);
 			    				
 			    			} //ENDIF add amount of next item of PZ
 			    			
-			    			if (bonnr != oldPzNr && code.equals("A") ){
+			    			if (bonnr != oldPzNr){
 			    				
 			    				//new block pz Wartosc found	
 			    				//collect data and put it in the right parameters
@@ -552,7 +554,7 @@ setinfo("create PZWartosc to xml		"+pzNumber);
 			    			} //ENDIF preparing data
 			    			
 			    			
-			    			
+			    			}	
 			    			
 			    		} //END WHILE
 			    		
@@ -565,7 +567,7 @@ setinfo("create PZWartosc to xml		"+pzNumber);
 			    		// RWWIERSZ
 			    		while(rs1.next()){
 			    			
-			    			if (rs1.getString("code").equals("A")){
+			    			if (rs1.getString("code")!=null){
 					    			String articlecode = rs1.getString("ARTIKELCODE");
 					    			String description = rs1.getString("artikelomschrijving");
 					    			String quantity = rs1.getString("geleverd");
@@ -589,7 +591,7 @@ setinfo("create PZWartosc to xml		"+pzNumber);
 					    			total = cumulInitPlusPriceTimeQty("0", unitprice, quantity, valuta, pzDatum);
 					    			
 					    			System.out.println("ADD PZWIERZ: "+pzNumber+" | " + articlecode+" | "+description+" | "+quantity + " | " + unit + " | " +unitprice + " | " + total);
-setinfo("create PZWiersz to xml		"+pzNumber); 
+setinfo("create PZWiersz to xml    "+pzNumber); 
 					    			doc = PZWiersz(doc, PZ, pzNumber, articlecode, description, quantity, unit, unitprice, total);
 			    			}
 			    		} //END WHILE

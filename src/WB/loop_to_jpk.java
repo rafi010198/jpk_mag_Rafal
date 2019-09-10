@@ -79,11 +79,11 @@ public class loop_to_jpk {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		
+		long millisActualTime = System.currentTimeMillis();
 
-
-			for(int j=2018;j<2020;j++)
+			for(int j=2019;j<2020;j++)
 			{
-				for(int i=5;i<13;i++)
+				for(int i=2;i<13;i++)
 				{	String dates;
 					if(i<10)
 					{
@@ -112,7 +112,10 @@ public class loop_to_jpk {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
-				
+				long executionTime = System.currentTimeMillis() - millisActualTime;
+			long czastrwania=executionTime/1000/60;
+			System.out.println("Program trwa³: "+czastrwania+" minut");
+			
 					if(j==2019 && i==8)
 						{System.exit(0);}
 				}

@@ -283,7 +283,7 @@ setinfo("Create WZWartosc to xml");
 					       		
 			    							wzNumber = "WZ " +rs1.getString("NR");
 			    							System.out.println("Detected WZ with Number: "+ wzNumber);
-setinfo("Create WZWartosc to xml		"+ wzNumber);	
+setinfo("Create WZWartosc to xml        "+ wzNumber);	
 			    							
 					    				Element NumerWZ = doc.createElement("NumerWZ");
 							       		NumerWZ.appendChild(doc.createTextNode(wzNumber));
@@ -365,7 +365,7 @@ setinfo("Create WZWiersz to xml");
 									if (rs1.getString("Artikelcode").equals("M") )	{
 										String StrTekst = rs1.getString("Tekst");
 										System.out.println("for bonnummer "+ wzNumber + " we have following articledescription: "+ StrTekst);
-setinfo("Create WZWiersz to xml			"+wzNumber);	
+setinfo("Create WZWiersz to xml     "+wzNumber);	
 										StrNazwaTowaruWZ=StrTekst;
 									}
 											
@@ -487,7 +487,9 @@ setinfo("Create PZWartosc to xml");
 			    			
 			    			int bonnr = rs1.getInt("bonnr");
 			    			String code = rs1.getString("code");
-setinfo("Create PZWartosc to xml		"+bonnr);	
+setinfo("Create PZWartosc to xml      "+bonnr);	
+			    			if (code!=null)
+			    			{
 			    			if (bonnr != oldPzNr && countPZ > 0 && code.equals("A") ){
 			    				 
 			    				    System.out.println("ADD 1 PZWartosc: "+pzNumber+" | " + pzDatum+" | "+pzAmount+" | "+pzLeveringsdatum + " | " + pzLeverancier  );
@@ -537,9 +539,8 @@ setinfo("Create PZWartosc to xml		"+bonnr);
 			    				
 			    				
 			    			} //ENDIF preparing data
-			    			
-			    			
-			    			
+			   
+			    		}
 			    			
 			    		} //END WHILE
 			    		
@@ -551,7 +552,8 @@ setinfo("Create PZWartosc to xml		"+bonnr);
 			    		
 			    		// WZWIERSZ
 			    		while(rs1.next()){
-			    			
+			    			if (rs1.getString("code")!=null)
+			    			{
 			    			if (rs1.getString("code").equals("A")){
 					    			String articlecode = rs1.getString("ARTIKELCODE");
 					    			String description = rs1.getString("artikelomschrijving");
@@ -576,8 +578,9 @@ setinfo("Create PZWartosc to xml		"+bonnr);
 					    			total = cumulInitPlusPriceTimeQty("0", unitprice, quantity, valuta, pzDatum);
 					    			
 					    			System.out.println("ADD PZWIERZ: "+pzNumber+" | " + articlecode+" | "+description+" | "+quantity + " | " + unit + " | " +unitprice + " | " + total);
-setinfo("Create PZWiersz to xml		"+pzNumber);						    			 
+setinfo("Create PZWiersz to xml       "+pzNumber);						    			 
 					    			doc = PZWiersz(doc, PZ, pzNumber, articlecode, description, quantity, unit, unitprice, total);
+			    			}
 			    			}
 			    		} //END WHILE
 			    		

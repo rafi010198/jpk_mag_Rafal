@@ -415,7 +415,7 @@ public class mainWindowStart extends JFrame {
 								seterror(e.toString());
 								e.printStackTrace();
 							}
-					if (error.equals(null))
+					if (error==null)
 					{		System.exit(0);	}
 					}
 				}).start();
