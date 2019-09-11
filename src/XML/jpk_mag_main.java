@@ -96,14 +96,17 @@ setinfo("create the xml data");
 	
 		            System.out.println("Done creating XML File");
 	
-		 
-	
-		        } catch (ParserConfigurationException pce) {
+		          }  
+		         catch (ParserConfigurationException pce) {
 		        	seterror(pce.toString());
 		            pce.printStackTrace();
 	
 		        } catch (TransformerException tfe) {
-		        	seterror(tfe.toString());
+		        	if(tfe.toString().equals("javax.xml.transform.TransformerException: java.lang.NullPointerException"))
+		        	{seterror(tfe.toString()+"Value has occurred null ");}
+		        	else
+		        	{seterror(tfe.toString());}
+		        	
 		            tfe.printStackTrace();
 		        }
 		        

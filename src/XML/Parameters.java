@@ -38,10 +38,11 @@ public class Parameters extends mainWindowStart {
 	public static String pzLeverancier 	= null;
 	
 	//  \\192.168.90.203\logistyka\JPK
+	//  //192.168.90.203/logistyka/JPK
 	
-	private static String PathToSave= "C:/Users/pl01.FIN/Desktop/RD/baza_do_zapisu_lokalnie";
-	private static String PathToSaveHours= "C:/Users/pl01.FIN/Desktop/RD/baza_do_zapisu_lokalnie";
-	private static String PathToDB = "C:/Users/pl01.FIN/Desktop/RD/baza_do_zapisu_lokalnie";
+	private static String PathToSave= "C:/Users/pl01.FIN/Desktop/RD/baza_do_zapisu_lokalnie/JPK";
+	private static String PathToSaveHours= "C:/Users/pl01.FIN/Desktop/RD/baza_do_zapisu_lokalnie/JPK";
+	private static String PathToDB = "C:/Users/pl01.FIN/Desktop/RD/baza_do_zapisu_lokalnie/JPK";
 	
 	public static String getPathToSave(){
 		return PathToSave;
@@ -126,8 +127,8 @@ if (!theDir.exists()) {
     }
 }
 String year = datastart.substring(0,4);
-String mounth = datastart.substring(5, 7);
-String path2 = Parameters.getPathToSaveHours()+"/"+directoryname+"/RAPORT_"+year+"."+mounth+"_"+setNameMounth(datastart)+"_"+year+"/";
+String month = datastart.substring(5, 7);
+String path2 = Parameters.getPathToSaveHours()+"/"+directoryname+"/RAPORT_"+year+"."+month+"_"+setNameMounth(datastart)+"_"+year+"/";
 //---------------------------------------------------------------------------------------------------
 	return path2;
 }

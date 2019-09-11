@@ -81,9 +81,9 @@ public class loop_to_jpk {
 		
 		long millisActualTime = System.currentTimeMillis();
 
-			for(int j=2019;j<2020;j++)
+			for(int j=2018;j<2020;j++)		//	<--- you set year
 			{
-				for(int i=2;i<13;i++)
+				for(int i=1;i<13;i++)		//  <--- you set month
 				{	String dates;
 					if(i<10)
 					{
@@ -95,9 +95,9 @@ public class loop_to_jpk {
 					}
 					setdatastart_1(dates);
 					setdatastop_1(dates);
-					directoryname = "Magazyn_Zakupy_103";
+					
 					try {
-
+						directoryname = "Magazyn_Zakupy_103";
 						jpk_mag_main.main();
 					} catch (SQLException | ParseException e1) {
 						// TODO Auto-generated catch block

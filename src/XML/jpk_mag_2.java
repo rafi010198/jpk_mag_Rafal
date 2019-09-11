@@ -94,14 +94,19 @@ setinfo("create the xml for magazine 2");
 	
 		            System.out.println("Done creating XML File");
 	
-		        } catch (ParserConfigurationException pce) {
-		        	seterror(pce.toString());
+		        }
+		        catch (ParserConfigurationException pce) {
+		        	 seterror(pce.toString());
 		            pce.printStackTrace();
 	
 		        } catch (TransformerException tfe) {
-		        	seterror(tfe.toString());
-		            tfe.printStackTrace();
-		        }
+			        	if(tfe.toString().equals("javax.xml.transform.TransformerException: java.lang.NullPointerException"))
+			        	{seterror(tfe.toString()+"Value has occurred null ");}
+			        	else
+			        	{seterror(tfe.toString());}
+			        	
+			            tfe.printStackTrace();
+			        }
 		        
 		        setinfo("Done JPK for Magazine 2");	
 		    }

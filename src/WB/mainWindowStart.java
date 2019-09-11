@@ -93,7 +93,8 @@ public class mainWindowStart extends JFrame {
 						textArea.setText(error);
 					sleep(2000);
 					}
-
+					lblchanges.setText(info);
+					textArea.setText(error);
 					
 				} catch (Exception e) {
 					seterror(e.toString());
@@ -317,7 +318,7 @@ public class mainWindowStart extends JFrame {
 					@Override
 					public void run() {
 						
-					if(rdbtnCreateXmlFor.isSelected())
+					if(rdbtnCreateXmlFor.isSelected())    // if you choose the xml creator for whole month
 					{	
 						String datum;
 						int month=monthChooser.getMonth()+1;
@@ -352,7 +353,7 @@ public class mainWindowStart extends JFrame {
 						}	
 							
 					}
-					else
+					else					// if you choose the xml creator for your own date
 					{
 			
 			
