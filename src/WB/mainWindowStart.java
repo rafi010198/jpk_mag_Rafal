@@ -50,6 +50,7 @@ import javax.swing.JCheckBox;
 import java.awt.SystemColor;
 import javax.swing.JList;
 
+import com.itextpdf.text.log.SysoLogger;
 import com.toedter.calendar.JDateChooser;
 import com.toedter.calendar.JMonthChooser;
 import com.toedter.calendar.JYearChooser;
@@ -196,7 +197,7 @@ public class mainWindowStart extends JFrame {
 	 */
 	public mainWindowStart() {
 		setTitle("JPK_MAG              CUB4U");
-		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 549, 634);
 		contentPane = new JPanel();
 		contentPane.setBackground(SystemColor.menu);
@@ -450,7 +451,7 @@ public class mainWindowStart extends JFrame {
 					System.out.println("Kniec: "+Parameters.time());
 					analizaGodzin.setText("Start JPK");
 					analizaGodzin.setEnabled(true);
-					if (error=="")				//if isn't errors close the program
+					if (error=="" && error_nr=="")				//if isn't errors close the program
 					{		System.exit(0);	}
 					}
 				}).start();

@@ -487,18 +487,10 @@ private static Document PZ(Document doc, Element root, String start , String sto
 			       		//  Podmiot1
 setinfo("create sql to PZ from magazin MAIN");	
 System.out.println("create sql to PZ from magazin MAIN");	
-		/*	       		String sql1 = "select distinct bonnr, volgnummer,leverancier, ordernummer,sequentie,aantal, ARTIKELCODE , artikelomschrijving ,"
-			       				+ "besteld, geleverd , cfreceptiedatum receptiedatum,besteleenheid, cfeffleveringsdatum leveringsdatum, "
-			       				+ "(select verschaffingscode from artikel_algemeen where ARTIKELCODE = r.ARTIKELCODE and OMSCHRIJVING=r.ARTIKELOMSCHRIJVING)as code, "
-			       				+ "(select munt from bestellingdetail b where leverancier = r.leverancier and ordernummer = r.ordernummer and SEQUENTIE = r.sequentie) as munt, "
-			       				+ "(select eenheidsprijs from bestellingdetail b where leverancier = r.leverancier and ordernummer = r.ordernummer and SEQUENTIE = r.sequentie) as eenheidsprijs, "
-			       				+ "(select naam from leverancier where leveranciernr = r.LEVERANCIER) as name "
-			       				+ "from receptiedetail r where CFEFFLEVERINGSDATUM  between '"+ start +"' and '"+ stop +""
-			       				+ "' and ARTIKELCODE is not null and r.ARTIKELOMSCHRIJVING is not null order by Bonnr ,Volgnummer + 0 asc";
-			*/       		
+      		
 			
-						String sql1 ="select  re.bonnr, re.volgnummer, b.leverancier,aa.LEVNAAM,b.ORDERNUMMER, b.SEQUENTIE,b.ARTIKELCODE,b.ARTIKELOMSCHRIJVING,b.BESTELD, "
-								+"b.BESTELEENHEID,b.GELEVERD, b.MUNT,b.CFSTOCK,b.LEVERINGSDATUMINGAVERECEPTIE,b.FACTURATIEDATUM, b.BESTELDATUM,aa.DATUM_OFFERTE, b.eenheidsprijs, "
+						String sql1 ="select  re.bonnr,re.SEQUENTIE, re.volgnummer, b.leverancier,aa.LEVNAAM,b.ORDERNUMMER,b.ARTIKELCODE,b.ARTIKELOMSCHRIJVING, "
+								+"b.BESTELEENHEID,b.GELEVERD, b.MUNT,b.CFSTOCK,b.LEVERINGSDATUMINGAVERECEPTIE,b.FACTURATIEDATUM, b.eenheidsprijs, "
 								+"a.VERSCHAFFINGSCODE "
 								+ "from bestellingdetail b "
 								+ "left join artikel_algemeen a "
@@ -508,11 +500,7 @@ System.out.println("create sql to PZ from magazin MAIN");
 								+ "left join receptiedetail re "
 								+ "on b.ARTIKELCODE = re.artikelcode and b.ORDERNUMMER=re.ORDERNUMMER "
 								+ "where "
-								+ "length(b.leverancier) = 6 "
-								+ "and b.leverancier <> '119003' # saca lub fat produkcja "
-								+ "and aa.LEVNAAM is not null "
-								+ "and a.VERSCHAFFINGSCODE = 'A' # czyli tylko zamowienia na magazyn kupny 103 "
-								+ "and b.LEVERINGSDATUMINGAVERECEPTIE between '"+start+"' and '"+stop+"' "
+								+ "b.LEVERINGSDATUMINGAVERECEPTIE between '"+start+"' and '"+stop+"' "
 								+ "and aa.LEVMANPLANNING = '1' # dostawca glowny -  tymczaosowo bo to zalezne jest od daty "
 								+ "order by re.BONNR, re.VOLGNUMMER ";
 
@@ -523,17 +511,29 @@ setinfo("Create PZWartosc to xml");
 			    			
 			    			//this if return nr bonnr and articlecode when is null value
 			    			if(rs1.getString("volgnummer")==null || rs1.getString("leverancier")==null || rs1.getString("LEVNAAM")==null  || rs1.getString("ordernummer")==null ||
-			    					rs1.getString("FACTURATIEDATUM")==null || rs1.getString("LEVERINGSDATUMINGAVERECEPTIE")==null ||
+			    					rs1.getString("LEVERINGSDATUMINGAVERECEPTIE")==null ||
 			    					rs1.getString("ARTIKELCODE")==null || rs1.getString("artikelomschrijving")==null || rs1.getString("geleverd")==null || 
-			    					rs1.getString("besteleenheid")==null )   				 //||rs1.getString("eenheidsprijs")==null || rs1.getString("munt")==null
+			    					rs1.getString("besteleenheid")==null || rs1.getString("FACTURATIEDATUM")==null )   		// 		
 			    			{seterror_nr("\n Error is in PZ in Magazine MAIN in Bonnr: "+rs1.getString("bonnr")+" , Artiklcode: "+rs1.getString("ARTIKELCODE")+"   You can select:\n"
-			    				+"select ");}
+			    				+"select  re.bonnr, re.volgnummer, b.leverancier,aa.LEVNAAM,b.ORDERNUMMER,b.ARTIKELCODE,b.ARTIKELOMSCHRIJVING, "
+								+"b.BESTELEENHEID,b.GELEVERD, b.MUNT,b.CFSTOCK,b.LEVERINGSDATUMINGAVERECEPTIE,b.FACTURATIEDATUM, b.eenheidsprijs, "
+								+"a.VERSCHAFFINGSCODE "
+								+ "from bestellingdetail b "
+								+ "left join artikel_algemeen a "
+								+ "on b.ARTIKELCODE = a.ARTIKELCODE "
+								+ "left join artikel_aankoop aa "
+								+ "on b.ARTIKELCODE = aa.ARTIKELCODE "
+								+ "left join receptiedetail re "
+								+ "on b.ARTIKELCODE = re.artikelcode and b.ORDERNUMMER=re.ORDERNUMMER "
+								+ "where re.bonnr='"+rs1.getString("bonnr")+"' and b.ARTIKELCODE='"+rs1.getString("ARTIKELCODE")+"'");}
 			    	
 			    			int bonnr = rs1.getInt("bonnr");
-			    			if(rs1.getString("bonnr")!=null)
+			    			String code = rs1.getString("VERSCHAFFINGSCODE");
+			    			if(rs1.getString("bonnr")!=null && code!=null && rs1.getString("LEVNAAM")!=null && rs1.getString("leverancier").length()==6 
+			    					&& rs1.getString("leverancier")!="119003" && rs1.getString("LEVNAAM")!="FAT produkcja")
 			    			{
 setinfo("Create PZWartosc to xml      "+bonnr);	
-			    			if (bonnr != oldPzNr && countPZ > 0){
+			    			if (bonnr != oldPzNr && countPZ > 0 && code.equals("A") ){
 			    				 
 			    				    System.out.println("ADD 1 PZWartosc: "+pzNumber+" | " + pzDatum+" | "+pzAmount+" | "+pzLeveringsdatum + " | " + pzLeverancier  );
 			    					doc = PZWartosc(doc, PZ, pzNumber, pzDatum, pzAmount, pzLeveringsdatum, pzLeverancier);
@@ -541,7 +541,7 @@ setinfo("Create PZWartosc to xml      "+bonnr);
 			    				
 			    			} //ENDIF writing a PZ WARTOSC BLOCK
 			    			
-			    			if (bonnr == oldPzNr   ){
+			    			if (bonnr == oldPzNr    && code.equals("A") && rs1.getString("FACTURATIEDATUM")!=null){
 			    				
 			    				// use this block to cummulate the prices of every single items of the PZ
 			    				
@@ -557,7 +557,7 @@ setinfo("Create PZWartosc to xml      "+bonnr);
 			    				
 			    			} //ENDIF add amount of next item of PZ
 			    			
-			    			if (bonnr != oldPzNr){
+			    			if (bonnr != oldPzNr && code.equals("A") && rs1.getString("FACTURATIEDATUM")!=null){
 			    				
 			    				//new block pz Wartosc found	
 			    				//collect data and put it in the right parameters
@@ -595,9 +595,10 @@ setinfo("Create PZWartosc to xml      "+bonnr);
 			    		
 			    		// WZWIERSZ
 			    		while(rs1.next()){
-			    			if(rs1.getString("bonnr")!=null)
+			    			if(rs1.getString("bonnr")!=null && rs1.getString("VERSCHAFFINGSCODE")!=null && rs1.getString("LEVNAAM")!=null && rs1.getString("leverancier").length()==6)
 			    			{
-			    			
+			    			if(rs1.getString("VERSCHAFFINGSCODE").equals("A") && rs1.getString("leverancier")!="119003" &&  rs1.getString("FACTURATIEDATUM")!=null && rs1.getString("LEVNAAM")!="FAT produkcja")
+			    			{
 					    			String articlecode = rs1.getString("ARTIKELCODE");
 					    			String description = rs1.getString("artikelomschrijving");
 					    			String quantity = rs1.getString("geleverd");
@@ -607,7 +608,7 @@ setinfo("Create PZWartosc to xml      "+bonnr);
 					    			String valuta = rs1.getString("munt");
 					    			pzDatum = rs1.getString("FACTURATIEDATUM");
 					    			pzNumber = rs1.getString("bonnr");
-					    			String volgnummer = rs1.getString("volgnummer");
+					    			String volgnummer = rs1.getString("SEQUENTIE");		//choice  SEQUENTIE, because SEQUENTIE is number facture 
 					    				
 					    			System.out.println("cumul proc: " + pzNumber + " |  " + unitprice + " |  " +valuta + " | " + pzDatum + " | " );
 					    			if (unitprice == null){
@@ -624,7 +625,8 @@ setinfo("Create PZWartosc to xml      "+bonnr);
 					    			System.out.println("ADD PZWIERZ: "+pzNumber+" | " + articlecode+" | "+description+" | "+quantity + " | " + unit + " | " +unitprice + " | " + total);
 setinfo("Create PZWiersz to xml       "+pzNumber);						    			 
 					    			doc = PZWiersz(doc, PZ, pzNumber+"/"+volgnummer, articlecode, description, quantity, unit, unitprice, total);
-					    	}
+			    			}
+			    			}
 			    		
 			    		} //END WHILE
 			    		
