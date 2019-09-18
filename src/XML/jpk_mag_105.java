@@ -1,3 +1,4 @@
+
 package XML;
 
 import java.io.File;
@@ -24,7 +25,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import XML.Parameters;
 
-public class jpk_mag_2 extends Parameters{
+public class jpk_mag_105 extends Parameters{
 	static Connection connection= WB.Connection2DB.dbConnector();
 
 public static void main() throws SQLException, ParseException {
@@ -37,7 +38,7 @@ public static void main() throws SQLException, ParseException {
 		        	
 		    		// configure directory and files
 		        	Parameters.createDirectory();
-		        	File f = Parameters.createFile("jpk_MAG_2.xml");
+		        	File f = Parameters.createFile("jpk_MAG_105.xml");
 
 					// create the xml data
 		        	
@@ -63,7 +64,7 @@ setinfo("create the xml for magazine 2");
 		            document = naglowek(document,root,datastart,datastop,today()+"T"+time()+"Z");
 		            document = podmiot(document, root);
 		            document = magazyn(document, root);
-		            document = RW(document,root,datastart,datastop);
+	//	            document = RW(document,root,datastart,datastop);
 		            document = PZ(document,root,datastart,datastop);
 			       	 
 				
@@ -233,7 +234,7 @@ private static Document podmiot(Document doc, Element root ){
 		    
 private static Document magazyn(Document doc, Element root){
 			   Element Magazyn = doc.createElement("tns:Magazyn");
-				Magazyn.appendChild(doc.createTextNode("MAGAZIN 2")); //name magazin ????????????
+				Magazyn.appendChild(doc.createTextNode("MAGAZIN 105")); //name magazin ????????????
 				root.appendChild(Magazyn);	
 			   return doc;
 			   
@@ -510,13 +511,13 @@ setinfo("create sql to PZ from magazin 2");
 
 			       		String sql1 = "select bonnr,volgnummer,leverancier,ordernummer,sequentie,aantal,rmd.artikelcode,artikelomschrijving,"
 			       				+"besteld, geleverd,cfreceptiedatum as receptiedatum, besteleenheid, cfeffleveringsdatum as leveringsdatum, "
-			       				+"(select verschaffingscode from artikel_algemeen where ARTIKELCODE = rmd.artikelcode and VERSCHAFFINGSCODE='P') as code, " 
+			       				+"(select verschaffingscode from artikel_algemeen where ARTIKELCODE = rmd.artikelcode and VERSCHAFFINGSCODE='Y') as code, " 
 			       				+"CFFIRMAMUNT as munt, CFKOSTPRIJS as eenheidsprijs, "
 			       				+"(select naam from leverancier where leveranciernr = rmd.LEVERANCIER) as name "
 			       				+"from receptie_magdetail rmd left join artikel_kostprijs ak on ak.ARTIKELCODE = rmd.artikelcode where cfreceptiedatum "
 			       				+"between '"+ start +"' and '"+ stop +"'"
 			       				+ "and ordernummer is not null and rmd.artikelcode is not null and artikelomschrijving is not null "
-			       				+"and geleverd is not null and ak.SOORT='4'"		//when Soort = 4, the weighted average price is taken
+			       				+"and geleverd is not null and ak.SOORT='4'"
 			       				+ " order by Bonnr ,Volgnummer + 0 asc";
 			       		
 			    		Statement st1 = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
@@ -524,7 +525,7 @@ setinfo("create sql to PZ from magazin 2");
 setinfo("create PZWartosc to xml");				    		
 			    		while(rs1.next()){
 			    			
-			    			//this if return nr bonnr and articlecode when is null value and sql which show this row where is null 
+			    			//this if return nr bonnr and articlecode when is null value
 			    			if( rs1.getString("volgnummer")==null || rs1.getString("leverancier")==null ||  rs1.getString("ordernummer")==null || 
 			    					rs1.getString("sequentie")==null || rs1.getString("artikelomschrijving")==null || rs1.getString("geleverd")==null ||
 			    					rs1.getString("receptiedatum")==null||rs1.getString("besteleenheid")==null || rs1.getString("leveringsdatum")==null || 
@@ -532,12 +533,12 @@ setinfo("create PZWartosc to xml");
 			    			{seterror_nr("\n Error is in PZ in Magazine 102 in PZnr: "+rs1.getString("bonnr")+" , Artiklcode: "+rs1.getString("Artikelcode")+"    You can select:\n"
 			    					+"select bonnr,volgnummer,leverancier,ordernummer,sequentie,aantal,rmd.artikelcode,artikelomschrijving,"
 				       				+"besteld, geleverd,cfreceptiedatum as receptiedatum, besteleenheid, cfeffleveringsdatum as leveringsdatum, "
-				       				+"(select verschaffingscode from artikel_algemeen where ARTIKELCODE = rmd.artikelcode and VERSCHAFFINGSCODE='P') as code, " 
+				       				+"(select verschaffingscode from artikel_algemeen where ARTIKELCODE = rmd.artikelcode and VERSCHAFFINGSCODE='Y') as code, " 
 				       				+"CFFIRMAMUNT as munt, CFKOSTPRIJS as eenheidsprijs, "
 				       				+"(select naam from leverancier where leveranciernr = rmd.LEVERANCIER) as name "
 				       				+"from receptie_magdetail rmd left join artikel_kostprijs ak on ak.ARTIKELCODE = rmd.artikelcode "
 				       				+ "where bonnr='"+rs1.getInt("bonnr")+"' and rmd.artikelcode='"+rs1.getString("Artikelcode")+"' "
-				       				+ "and ordernummer is not null and rmd.artikelcode is not null and artikelomschrijving is not null  and ak.SOORT='4' "
+				       				+ "and ordernummer is not null and rmd.artikelcode is not null and artikelomschrijving is not null and ak.SOORT='4' "
 				       				+"and geleverd is not null order by Bonnr ,Volgnummer + 0 asc");}
 			    			
 			    			

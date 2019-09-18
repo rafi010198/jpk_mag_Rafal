@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 import java.lang.management.ThreadInfo;
+import java.net.SecureCacheResponse;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -23,13 +24,15 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
-import javax.swing.JTextField;
+import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
 import org.eclipse.birt.report.model.elements.Label;
 import org.hsqldb.ExpressionArithmetic;
 import org.w3c.dom.DOMException;
 
+import XML.Parameters;
+import XML.jpk_mag_105;
 import XML.jpk_mag_2;
 
 //import com.itextpdf.text.DocumentException;
@@ -51,6 +54,7 @@ import com.toedter.calendar.JDateChooser;
 import com.toedter.calendar.JMonthChooser;
 import com.toedter.calendar.JYearChooser;
 import javax.swing.JTextArea;
+import javax.swing.ScrollPaneConstants;
 
 public class mainWindowStart extends JFrame {
 	
@@ -63,6 +67,7 @@ public class mainWindowStart extends JFrame {
 	private static Thread thinfo;
 	public static JTextArea textArea;
 	
+	
 //---------------------------------------------------------------------------------------------
 	public static String info;
 	public static void setinfo(String inf){
@@ -71,12 +76,19 @@ public class mainWindowStart extends JFrame {
 	public static String getinfo(){
 		return info;
 	}
-	public static String error;
-	public static void seterror(String tfe){
-		error=tfe;
+	public static String error="";
+	public static void seterror(String err){
+		error=error+"\n"+err;
 	}
 	public static String geterror(){
 		return error;
+	}
+	public static String error_nr="";
+	public static void seterror_nr(String errnr){
+		error_nr=error_nr+errnr+"\n";
+	}
+	public static String geterror_nr(){
+		return error_nr;
 	}
 
 //	-------------------- My thread to show change in programm ----------------------
@@ -90,11 +102,11 @@ public class mainWindowStart extends JFrame {
 					while(analizaGodzin.isEnabled()==false)
 					{
 						lblchanges.setText(info);
-						textArea.setText(error);
+						textArea.setText(error+"\n"+geterror_nr());
 					sleep(2000);
 					}
 					lblchanges.setText(info);
-					textArea.setText(error);
+					textArea.setText(error+"\n"+geterror_nr());
 					
 				} catch (Exception e) {
 					seterror(e.toString());
@@ -183,10 +195,9 @@ public class mainWindowStart extends JFrame {
 	 * @return 
 	 */
 	public mainWindowStart() {
-		setResizable(false);
 		setTitle("JPK_MAG              CUB4U");
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(100, 100, 485, 519);
+		setBounds(100, 100, 549, 634);
 		contentPane = new JPanel();
 		contentPane.setBackground(SystemColor.menu);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -198,24 +209,24 @@ public class mainWindowStart extends JFrame {
 	
 		JDateChooser dstart = new JDateChooser();
 		dstart.setEnabled(false);
-		dstart.setBounds(188, 148, 114, 20);
+		dstart.setBounds(215, 148, 114, 20);
 		dstart.setToolTipText("yyyy-MM-dd");
 		contentPane.add(dstart);
 
 		JDateChooser dstop = new JDateChooser();
 		dstop.setEnabled(false);
-		dstop.setBounds(355, 148, 114, 20);
+		dstop.setBounds(373, 148, 114, 20);
 		contentPane.add(dstop);
 
 		JLabel lblDateStart = new JLabel("Date start");
 		lblDateStart.setEnabled(false);
-		lblDateStart.setBounds(188, 117, 114, 20);
+		lblDateStart.setBounds(215, 117, 114, 20);
 		lblDateStart.setHorizontalAlignment(SwingConstants.CENTER);
 		contentPane.add(lblDateStart);
 		
 		JLabel lblDateStop = new JLabel("Date stop");
 		lblDateStop.setEnabled(false);
-		lblDateStop.setBounds(355, 117, 114, 20);
+		lblDateStop.setBounds(373, 117, 114, 20);
 		lblDateStop.setHorizontalAlignment(SwingConstants.CENTER);
 		contentPane.add(lblDateStop);
 		
@@ -278,41 +289,52 @@ public class mainWindowStart extends JFrame {
 		contentPane.add(rdbtnCreataXmlFrom);
 	
 		JLabel lblCreateXmlFrom = new JLabel("Create xml from magazin:");
-		lblCreateXmlFrom.setBounds(144, 204, 158, 20);
+		lblCreateXmlFrom.setBounds(191, 175, 158, 20);
 		lblCreateXmlFrom.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		lblCreateXmlFrom.setHorizontalAlignment(SwingConstants.CENTER);
 		contentPane.add(lblCreateXmlFrom);
 		
 		JCheckBox chckbxMagazinMain = new JCheckBox("Magazin Main");
-		chckbxMagazinMain.setBounds(176, 231, 126, 23);
+		chckbxMagazinMain.setBounds(223, 202, 126, 23);
 		chckbxMagazinMain.setSelected(true);
 		contentPane.add(chckbxMagazinMain);
 		
 		JCheckBox chckbxMagazin_2 = new JCheckBox("Magazin 2");
-		chckbxMagazin_2.setBounds(176, 257, 126, 23);
+		chckbxMagazin_2.setBounds(223, 228, 126, 23);
 		chckbxMagazin_2.setSelected(true);
 		contentPane.add(chckbxMagazin_2);
 		
+		JCheckBox chckbxMagazin_105 = new JCheckBox("Magazin 105");
+		chckbxMagazin_105.setSelected(true);
+		chckbxMagazin_105.setBounds(223, 254, 97, 23);
+		contentPane.add(chckbxMagazin_105);
+		
 		lblchanges = new JLabel("");
-		lblchanges.setBounds(38, 355, 396, 14);
+		lblchanges.setBounds(38, 352, 449, 14);
 		contentPane.add(lblchanges);
 		
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setBounds(0, 405, 533, 190);
+		contentPane.add(scrollPane);
+
 		textArea = new JTextArea();
+		scrollPane.setViewportView(textArea);
 		textArea.setBackground(SystemColor.control);
-		textArea.setBounds(38, 405, 406, 75);
-		textArea.setLineWrap(true);
-		contentPane.add(textArea);
-		
+		//textArea.setLineWrap(true);
+	
+	    
 		analizaGodzin = new JButton("Start JPK");
-		analizaGodzin.setBounds(107, 287, 232, 38);
-		analizaGodzin.setFont(new Font("Tahoma", Font.PLAIN, 11));
+		analizaGodzin.setBounds(38, 284, 449, 38);
+		analizaGodzin.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		analizaGodzin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) 
 			{
 			
 			System.out.println("Start JPK_MAG");
+			analizaGodzin.setText("Start JPK - "+Parameters.time());
 			analizaGodzin.setEnabled(false);
 				informations ();
+				System.out.println(Parameters.time());
 				new Thread(new Runnable() {			//Thread to show changes in program in GUI
 					
 					@Override
@@ -342,10 +364,15 @@ public class mainWindowStart extends JFrame {
 						if(chckbxMagazin_2.isSelected())
 						{
 							directoryname = "Magazyn_MCG_102";
-							
 								jpk_mag_2.main();
 							
 						}
+						if(chckbxMagazin_105.isSelected())
+						{
+							directoryname = "Magazyn_Material_105";
+							jpk_mag_105.main();
+						}
+						
 						} catch (SQLException | ParseException e) {
 							seterror(e.toString());
 							// TODO Auto-generated catch block
@@ -389,7 +416,11 @@ public class mainWindowStart extends JFrame {
 										jpk_mag_2.main();	
 										
 									}
-									
+									if(chckbxMagazin_105.isSelected())
+									{
+										directoryname = "Magazyn_Material_105";
+										jpk_mag_105.main();
+									}
 									}
 									
 								catch (SQLException e) {
@@ -409,14 +440,17 @@ public class mainWindowStart extends JFrame {
 								}
 				
 					}
-					analizaGodzin.setEnabled(true);
+					
 					try {
 								Thread.sleep(2001);
 							} catch (InterruptedException e) {
 								seterror(e.toString());
 								e.printStackTrace();
 							}
-					if (error==null)
+					System.out.println("Kniec: "+Parameters.time());
+					analizaGodzin.setText("Start JPK");
+					analizaGodzin.setEnabled(true);
+					if (error=="")				//if isn't errors close the program
 					{		System.exit(0);	}
 					}
 				}).start();
@@ -428,13 +462,16 @@ public class mainWindowStart extends JFrame {
 		
 		JLabel lblErrors = new JLabel("Errors:");
 		lblErrors.setHorizontalAlignment(SwingConstants.CENTER);
-		lblErrors.setBounds(203, 380, 46, 14);
+		lblErrors.setBounds(245, 377, 46, 14);
 		contentPane.add(lblErrors);
 		
 		JLabel lblChanges = new JLabel("Changes:");
 		lblChanges.setHorizontalAlignment(SwingConstants.CENTER);
-		lblChanges.setBounds(188, 336, 71, 14);
+		lblChanges.setBounds(233, 333, 71, 14);
 		contentPane.add(lblChanges);
+		
+
+		
 		
 		
 		
