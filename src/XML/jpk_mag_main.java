@@ -586,13 +586,13 @@ setinfo("Create PZWartosc to xml      "+bonnr);
 			    		}
 			    			
 			    		} //END WHILE
-			    		
+//!!!!!!!!!!!!!!! Byc mo¿e jest bl¹d - powtórzenie ostatniego wiersza !!!!!!!!!!!
 			    		//write down the last section of PZ
 		    			System.out.println("ADD 2 PZWartosc: "+pzNumber+" | " + pzDatum+" | "+pzAmount+" | "+pzLeveringsdatum + " | " + pzLeverancier  );
 		    			doc = PZWartosc(doc, PZ, pzNumber, pzDatum, pzAmount, pzLeveringsdatum, pzLeverancier);
 		    			totalamountPZ = totalamountPZ.setScale(2,BigDecimal.ROUND_UP);
 			    		rs1.beforeFirst();
-			    		
+//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			    		// WZWIERSZ
 			    		while(rs1.next()){
 			    			if(rs1.getString("bonnr")!=null && rs1.getString("VERSCHAFFINGSCODE")!=null && rs1.getString("LEVNAAM")!=null && rs1.getString("leverancier").length()==6)

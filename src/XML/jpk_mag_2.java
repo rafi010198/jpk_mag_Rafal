@@ -551,9 +551,9 @@ setinfo("Create PZWartosc to xml");
 			    	
 			    			int bonnr = rs1.getInt("bonnr");
 			    			String code = rs1.getString("VERSCHAFFINGSCODE");
-			    			if(rs1.getString("LEVNAAM")!="FAT produkcja")
+			    			if(rs1.getString("LEVNAAM").equals("FAT produkcja")==false)
 			    			{
-			    			if(rs1.getString("bonnr")!=null && code!=null && rs1.getString("LEVNAAM")!=null && rs1.getString("leverancier").length()==6 && rs1.getString("leverancier")!="119003")
+			    			if(rs1.getString("bonnr")!=null && code!=null && rs1.getString("LEVNAAM")!=null && rs1.getString("leverancier").length()==6 && rs1.getString("leverancier").equals("119003")==false)
 			    			{
 			    				
 setinfo("Create PZWartosc to xml      "+bonnr);	
@@ -612,16 +612,18 @@ setinfo("Create PZWartosc to xml      "+bonnr);
 			    		} //END WHILE
 			    		
 			    		//write down the last section of PZ
+			    		if(pzNumber!=null && pzDatum!=null && pzLeverancier!=null)
+			    		{
 		    			System.out.println("ADD 2 PZWartosc: "+pzNumber+" | " + pzDatum+" | "+pzAmount+" | "+pzLeveringsdatum + " | " + pzLeverancier  );
 		    			doc = PZWartosc(doc, PZ, pzNumber, pzDatum, pzAmount, pzLeveringsdatum, pzLeverancier);
 		    			totalamountPZ = totalamountPZ.setScale(2,BigDecimal.ROUND_UP);
 			    		rs1.beforeFirst();
-			    		
+			    		}
 			    		// WZWIERSZ
 			    		while(rs1.next()){
-			    			if(rs1.getString("bonnr")!=null && rs1.getString("VERSCHAFFINGSCODE")!=null && rs1.getString("LEVNAAM")!="FAT produkcja" && rs1.getString("LEVNAAM")!=null && rs1.getString("leverancier").length()==6)
+			    			if(rs1.getString("bonnr")!=null && rs1.getString("VERSCHAFFINGSCODE")!=null && rs1.getString("LEVNAAM").equals("FAT produkcja")==false && rs1.getString("LEVNAAM")!=null && rs1.getString("leverancier").length()==6)
 			    			{
-			    			if(rs1.getString("VERSCHAFFINGSCODE").equals("P") && rs1.getString("leverancier")!="119003" &&  rs1.getString("FACTURATIEDATUM")!=null )
+			    			if(rs1.getString("VERSCHAFFINGSCODE").equals("P") && rs1.getString("leverancier").equals("119003")==false &&  rs1.getString("FACTURATIEDATUM")!=null )
 			    			{
 					    			String articlecode = rs1.getString("ARTIKELCODE");
 					    			String description = rs1.getString("artikelomschrijving");
