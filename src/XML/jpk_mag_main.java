@@ -64,7 +64,8 @@ setinfo("create the xml data");
 		            document = podmiot(document, root);
 		            document = magazyn(document, root);
 	//	            document = WZ(document,root,datastart,datastop);
-		            document = PZ(document,root,datastart,datastop);
+		            document = RW(document,root,datastart,datastop);
+	//	            document = PZ(document,root,datastart,datastop);
 			       	 
 				
 	
@@ -457,7 +458,230 @@ setinfo("Create WZWiersz to xml     "+wzNumber);
 					       		
 		    }
 
-
+		private static Document RW(Document doc, Element root, String start , String stop) throws SQLException, ParseException{
+			
+			BigDecimal totalamountRW = BigDecimal.ZERO;
+			int countRW = 0;   //counting the numbers of RW`s
+			String rwNumber = null;
+			int rememberRwNr = 0;
+			Element RW = doc.createElement("tns:RW");
+		       root.appendChild(RW);	           
+		            
+		       		//  Podmiot1
+		
+		setinfo("create sql to RW from magazin 105");
+		
+		       		
+		String sql1 = "select ORDERNUMMER as NR,SEQUENTIE,ARTIKELCODE,ARTIKELOMSCHRIJVING,BESTELD,LEVERINGSDATUMEFFECTIEF,LEVERINGSDATUMINGAVERECEPTIE,"
+						+ "BESTELEENHEID,CFLEVNAAM,GELEVERD,AFDELING,AFDELINGSEQ,MUNT,TOTAAL,EENHEIDSPRIJS,"
+						+ "(select sum(TOTAAL) from storenotesdetail where s.ORDERNUMMER=ORDERNUMMER) as summ "
+						+ "from storenotesdetail_jpk s "
+						+ "where LEVERINGSDATUMEFFECTIEF between '"+start+"' and '"+stop+"'";
+		       		
+		       		
+		System.out.println(sql1);
+		    		Statement st1 = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+		    		ResultSet rs1 = st1.executeQuery(sql1);
+		    	//	suma=rs1.getString("MATERIAAL");
+		setinfo("create RWWartosc to xml");	
+		System.out.println("create RWWartosc to xml");
+		    		while(rs1.next()){
+		    			
+		    			//this if return nr bonnr and articlecode when is null value
+		    			if( rs1.getString("SEQUENTIE")==null || rs1.getString("ARTIKELCODE")==null ||  rs1.getString("ARTIKELOMSCHRIJVING")==null || 
+		    					rs1.getString("BESTELD")==null || rs1.getString("BESTELEENHEID")==null ||
+		    					rs1.getString("CFLEVNAAM")==null||rs1.getString("GELEVERD")==null || rs1.getString("EENHEIDSPRIJS")==null ||
+		    					rs1.getString("MUNT")==null || rs1.getString("TOTAAL")==null )
+		    			{seterror_nr("\n Error is in WZ in Magazine 102 in WZnr: "+rs1.getString("NR")+" , Artiklcode: "+rs1.getString("Artikelcode")+"    You can select:\n"
+		    					+"select ORDERNUMMER as NR,SEQUENTIE,ARTIKELCODE,ARTIKELOMSCHRIJVING,BESTELD,LEVERINGSDATUMEFFECTIEF,LEVERINGSDATUMINGAVERECEPTIE,"
+								+ "BESTELEENHEID,CFLEVNAAM,GELEVERD,AFDELING,AFDELINGSEQ,MUNT,TOTAAL,EENHEIDSPRIJS,"
+								+ "(select sum(TOTAAL) from storenotesdetail where s.ORDERNUMMER=ORDERNUMMER) as summ"
+								+ "from storenotesdetail_jpk s "
+								+ "where ORDERNUMMER ='"+rs1.getInt("NR")+"' and ARTIKELCODE='"+rs1.getString("ARTIKELCODE")+"'");}
+		    			
+		    			
+		    			if (rs1.getInt("NR") != rememberRwNr && rs1.getString("LEVERINGSDATUMEFFECTIEF")!=null){
+		    					countRW++;
+		    					rememberRwNr = rs1.getInt("NR");
+		    					String datumRW = rs1.getString("LEVERINGSDATUMEFFECTIEF").substring(0,10); 
+		    					Element rwWartosc = doc.createElement("RWWartosc");
+		    					rwWartosc.setAttribute("xmlns", "http://jpk.mf.gov.pl/wzor/2016/03/09/03093/");
+		    					RW.appendChild(rwWartosc);
+				       		
+		    							rwNumber = "RW " +rs1.getString("NR");
+		    							System.out.println("Detected RW with Number: "+ rwNumber);
+		setinfo("create RWWartosc to xml      "+rwNumber);		
+				    				Element NumerRW = doc.createElement("NumerRW");
+						       		NumerRW.appendChild(doc.createTextNode(rwNumber));
+				    				rwWartosc.appendChild(NumerRW);
+				    										       							    						
+						       		Element DataRW = doc.createElement("DataRW");
+						       		DataRW.appendChild(doc.createTextNode(rs1.getString("LEVERINGSDATUMINGAVERECEPTIE").substring(0,4) +"-"+rs1.getString("LEVERINGSDATUMINGAVERECEPTIE").substring(5,7)+"-"+rs1.getString("LEVERINGSDATUMINGAVERECEPTIE").substring(8,10)));
+						       		rwWartosc.appendChild(DataRW);
+					       		
+					       		
+							       		// if munt <> PLN  then search currency exchange that day and convert the total
+							       		String strCena = null;
+							       	
+					       		
+							       		if(rs1.getString("MUNT").equals("PLN")){  
+							       			strCena = rs1.getString("summ");
+							       			
+							       		}else{strCena = ConvertValutaToPLN(rs1.getString("MUNT"), rs1.getString("summ"), datumRW);
+							       		
+								       				
+							       		}// end else if
+							       		
+							       		BigDecimal bdAmount = new BigDecimal(strCena);
+							       		bdAmount = bdAmount.setScale(2, BigDecimal.ROUND_HALF_UP);
+							       		totalamountRW = totalamountRW.add(bdAmount) ;
+							       		
+						       		Element WartoscRW = doc.createElement("WartoscRW");
+						       		WartoscRW.appendChild(doc.createTextNode(bdAmount.toString()));
+						       		rwWartosc.appendChild(WartoscRW);
+					       		
+						       			//add totaal to final sumation of all RW
+					       		
+						       		Element DataWydaniaRW = doc.createElement("DataWydaniaRW");
+						       		DataWydaniaRW.appendChild(doc.createTextNode(datumRW));
+						       		rwWartosc.appendChild(DataWydaniaRW);
+					       		
+						       		Element SkadRW = doc.createElement("SkadRW");
+						       		SkadRW.appendChild(doc.createTextNode(rs1.getString("CFLEVNAAM")));
+						       		rwWartosc.appendChild(SkadRW);
+						       		
+						       		String recipient = rs1.getString("AFDELING");
+						       		String dokad = null;
+						       		if(recipient.equals("500"))
+						       		{
+						       			dokad="FAT Produkcja";
+						       		}
+						       		else if(recipient.equals("2") || recipient.equals("14") || recipient.equals("5") || recipient.equals("3"))
+						       		{
+						       			dokad="Monta¿";
+						       		}
+						       		Element DokadRW = doc.createElement("DokadRW");
+						       		DokadRW.appendChild(doc.createTextNode(dokad));
+						       		rwWartosc.appendChild(DokadRW);
+					       		
+						       		//optional childs if needed to be add
+						       		
+		//				       		Element NumerFaRW = doc.createElement("NumerFaRW");
+		//				       		NumerFaRW.appendChild(doc.createTextNode("8960000138"));
+		//				       		rwWartosc.appendChild(NumerFaRW);
+		//			       		
+		//				       		Element DataFaRW = doc.createElement("DataFaRW");
+		//				       		DataFaRW.appendChild(doc.createTextNode("8960000138"));
+		//				       		rwWartosc.appendChild(DataFaRW);
+						       		
+			    			
+		    			} //ENDIF for RWWartosz
+		    		} //END WHILE
+		    		
+		    		rs1.beforeFirst();
+		    		
+		    		// RWWIERSZ
+		setinfo("create RWWiersz to xml");	
+		    		while(rs1.next()){
+		    			if(rs1.getString("LEVERINGSDATUMEFFECTIEF")!=null)
+		    			{
+		    			
+		    			String datumRW = rs1.getString("LEVERINGSDATUMEFFECTIEF");
+		    			
+		    			Element RWWiersz = doc.createElement("RWWiersz");
+		    			RWWiersz.setAttribute("xmlns", "http://jpk.mf.gov.pl/wzor/2016/03/09/03093/");
+			       		RW.appendChild(RWWiersz);
+			       				
+			       				rwNumber = "RW " +rs1.getString("NR")+"/"+rs1.getString("SEQUENTIE");
+			       				
+				       		Element Numer2RW = doc.createElement("Numer2RW");
+				       		Numer2RW.appendChild(doc.createTextNode(rwNumber));
+				       		RWWiersz.appendChild(Numer2RW);
+				       		
+				       		Element KodTowaruRW = doc.createElement("KodTowaruRW");
+				       		KodTowaruRW.appendChild(doc.createTextNode(rs1.getString("ARTIKELCODE")));
+				       		RWWiersz.appendChild(KodTowaruRW);
+				       		
+				       		
+				       		
+				       		String StrNazwaTowaruRW = rs1.getString("ARTIKELOMSCHRIJVING"); //String StrNazwaTowaruRW = rs1.getString("Artikelomschrijving");
+			//					if (rs1.getString("Artikelcode").equals("M") )	{
+			//						String StrTekst = rs1.getString("Tekst");
+			//						System.out.println("for bonnummer "+ rwNumber + " we have following articledescription: "+ StrTekst);
+			//						StrNazwaTowaruRW=StrTekst;
+			//					}
+										
+				       		
+				       		Element NazwaTowaruRW = doc.createElement("NazwaTowaruRW");
+				       		NazwaTowaruRW.appendChild(doc.createTextNode(StrNazwaTowaruRW));
+				       		RWWiersz.appendChild(NazwaTowaruRW);
+				       		
+				       		Element IloscWydanaRW = doc.createElement("IloscWydanaRW");
+				       		IloscWydanaRW.appendChild(doc.createTextNode(rs1.getString("GELEVERD"))); //IloscWydanaRW.appendChild(doc.createTextNode(rs1.getString("Geleverd")));
+				       		RWWiersz.appendChild(IloscWydanaRW);
+				       		
+				       		Element JednostkaMiaryRW = doc.createElement("JednostkaMiaryRW");
+				       		JednostkaMiaryRW.appendChild(doc.createTextNode(rs1.getString("BESTELEENHEID"))); //JednostkaMiaryRW.appendChild(doc.createTextNode(rs1.getString("besteleenheid")));
+				       		RWWiersz.appendChild(JednostkaMiaryRW);
+				       		
+					       		// if munt <> PLN  then search currency exchange that day and convert the total
+					 		String strCena = null;
+									       		
+					       		if(rs1.getString("MUNT").equals("PLN")){
+					       			strCena = rs1.getString("EENHEIDSPRIJS");
+					       		}else{
+					       			strCena = ConvertValutaToPLN(rs1.getString("MUNT"), rs1.getString("EENHEIDSPRIJS"), datumRW);
+					       		}// end else if
+				       		
+				       		Element CenaJednRW = doc.createElement("CenaJednRW");
+				       		CenaJednRW.appendChild(doc.createTextNode(strCena));
+				       		RWWiersz.appendChild(CenaJednRW);
+				       		
+					       		BigDecimal bdprice = new BigDecimal(strCena);
+					       				bdprice = bdprice.setScale(2,BigDecimal.ROUND_UP);
+					       		BigDecimal bdqty = new BigDecimal(rs1.getString("GELEVERD"));
+					       		BigDecimal total = bdprice.multiply(bdqty);
+					       				total = total.setScale(2,BigDecimal.ROUND_UP);
+				       		
+				       		Element WartoscPozycjiRW = doc.createElement("WartoscPozycjiRW");
+				       		WartoscPozycjiRW.appendChild(doc.createTextNode(total.toString()));
+				       		RWWiersz.appendChild(WartoscPozycjiRW);
+				       		
+			    			
+		    			
+		    			
+		    			
+		    			
+		    		}
+		    			
+		    			
+		    		} //END WHILE
+		    		
+		    		Element RWCtrl = doc.createElement("RWCtrl");
+		       		RW.appendChild(RWCtrl);
+		    		
+		       		Element LiczbaRW = doc.createElement("LiczbaRW");
+		       		LiczbaRW.appendChild(doc.createTextNode(String.valueOf(countRW)));
+		       		RWCtrl.appendChild(LiczbaRW);
+		       		
+		       		
+		       		totalamountRW = totalamountRW.setScale(2,BigDecimal.ROUND_UP);
+		       		Element SumaRW = doc.createElement("SumaRW");
+		       		SumaRW.appendChild(doc.createTextNode(totalamountRW.toString()));
+		       		RWCtrl.appendChild(SumaRW);
+		    		
+		    		
+		    		
+		    		
+		    		st1.close();
+		    		rs1.close();
+		       		
+				       		
+		    		     		
+		    		 		
+				       		return doc;
+		    		 				       		
+}
 
 /**
  * Generate the PZ section for JPK_MAG

@@ -11,10 +11,13 @@ import java.io.FileNotFoundException;
 import java.lang.management.ThreadInfo;
 import java.net.SecureCacheResponse;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
@@ -61,11 +64,12 @@ public class mainWindowStart extends JFrame {
 	
 	public static String directoryname;
 	private static JPanel contentPane;
-	private JLabel lblWprowadOczekiwanLiczb;
 	private final ButtonGroup buttonGroup = new ButtonGroup();
 	private static JLabel lblchanges;
 	private static JButton analizaGodzin;
 	private static Thread thinfo;
+	private static JLabel lblTime;
+	private static long starttime;
 	public static JTextArea textArea;
 	
 	
@@ -91,7 +95,39 @@ public class mainWindowStart extends JFrame {
 	public static String geterror_nr(){
 		return error_nr;
 	}
-
+//	-------------------- Thread to clock -------------------------------------------
+	public static void clock(){
+		thinfo = new Thread(){
+			public void run(){
+				try {
+					
+					
+					
+					while(analizaGodzin.isEnabled()==false)
+					{
+						long time = new Date().getTime()-starttime;
+						long hours = TimeUnit.MILLISECONDS.toHours(time);
+						long minutes = TimeUnit.MILLISECONDS.toMinutes(time)%60;
+						long seconds = TimeUnit.MILLISECONDS.toSeconds(time)%60;
+						
+						lblTime.setText(hours+":"+minutes+":"+seconds);
+					//	lblTime.setText(new Timestamp(System.currentTimeMillis()-starttime).toString());
+						
+					sleep(1000);
+					}
+					
+					
+				} catch (Exception e) {
+					seterror(e.toString());
+					e.printStackTrace();
+					
+				}
+			}
+		};
+		thinfo.start();
+		
+	}
+	
 //	-------------------- My thread to show change in programm ----------------------
 	public static void informations (){
 		thinfo = new Thread(){
@@ -208,6 +244,12 @@ public class mainWindowStart extends JFrame {
 
 		//Image img = new ImageIcon(this.getClass().getResource("/BackgroundImage.jpg")).getImage();
 	
+		lblTime = new JLabel("");
+		lblTime.setHorizontalAlignment(SwingConstants.RIGHT);
+		lblTime.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblTime.setBounds(431, 21, 79, 23);
+		contentPane.add(lblTime);
+		
 		JDateChooser dstart = new JDateChooser();
 		dstart.setEnabled(false);
 		dstart.setBounds(215, 148, 114, 20);
@@ -330,11 +372,12 @@ public class mainWindowStart extends JFrame {
 		analizaGodzin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) 
 			{
-			
+			starttime = new Date().getTime();
 			System.out.println("Start JPK_MAG");
 			analizaGodzin.setText("Start JPK - "+Parameters.time());
 			analizaGodzin.setEnabled(false);
 				informations ();
+				clock();
 				System.out.println(Parameters.time());
 				new Thread(new Runnable() {			//Thread to show changes in program in GUI
 					
@@ -472,12 +515,6 @@ public class mainWindowStart extends JFrame {
 		contentPane.add(lblChanges);
 		
 
-		
-		
-		
-		
-		
-		
 	}
 		
 		
