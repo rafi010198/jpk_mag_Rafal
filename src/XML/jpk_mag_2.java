@@ -63,8 +63,9 @@ setinfo("create the xml for magazine 2");
 		            document = naglowek(document,root,datastart,datastop,today()+"T"+time()+"Z");
 		            document = podmiot(document, root);
 		            document = magazyn(document, root);
-	//	            document = RW(document,root,datastart,datastop);
 		            document = PZ(document,root,datastart,datastop);
+		            document = RW(document,root,datastart,datastop);
+
 			       	 
 				
 	
@@ -264,40 +265,59 @@ private static Document RW(Document doc, Element root, String start , String sto
 			            
 			       		//  Podmiot1
 
-setinfo("create sql to RW from magazin 2");
+setinfo("create sql1 to RW from magazin 2");
 
 			       		
 	String sql1 = "select s.ORDERNUMMER as NR,s.SEQUENTIE, s.ARTIKELCODE,s.ARTIKELOMSCHRIJVING,s.BESTELD, s.LEVERINGSDATUMEFFECTIEF, s.LEVERINGSDATUMINGAVERECEPTIE, "
-				+"s.BESTELEENHEID,s.GELEVERD, a.MATERIAAL,a.CFKOSTPRIJS,a.CFFIRMAMUNT , aa.LEVNAAM, aal.VERSCHAFFINGSCODE, aa.LEVMANPLANNING,"
+				+"s.BESTELEENHEID,s.GELEVERD, a.MATERIAAL,a.CFKOSTPRIJS,a.CFFIRMAMUNT, s.AFDELING, aal.VERSCHAFFINGSCODE, aa.LEVMANPLANNING,"
 				+"(select sum(a.MATERIAAL * s.GELEVERD)from storenotesdetail s left join artikel_kostprijs a on a.ARTIKELCODE = s.ARTIKELCODE "
-				+"where NR=s.ORDERNUMMER and s.Leverancier = '102'   and  a.SOORT = '4' and s.LEVERINGSDATUMEFFECTIEF between '"+ datastart +"' and '"+ datastop+"') as summ "
+				+"where NR=s.ORDERNUMMER and s.Leverancier = '102'   and  a.SOORT = '4' and s.LEVERINGSDATUMEFFECTIEF between '"+ start +"' and '"+ stop+"' and"
+				+ "(s.AFDELING='500' or s.AFDELING='2' or s.AFDELING='3' or s.AFDELING='5' or s.AFDELING='14')) as summ "
 				+"from storenotesdetail s "
 				+"left join artikel_kostprijs a on a.ARTIKELCODE = s.ARTIKELCODE "
 				+"left join artikel_aankoop aa on aa.ARTIKELCODE = s.ARTIKELCODE "
 				+"left join artikel_algemeen aal on aal.ARTIKELCODE = s.ARTIKELCODE "
 				+"where s.Leverancier = '102'   and  a.SOORT = '4' and aal.VERSCHAFFINGSCODE='P' and s.LEVERINGSDATUMEFFECTIEF between '"+ start +"' and '"+ stop+"' "
+				+ "and (s.AFDELING='500' or s.AFDELING='2' or s.AFDELING='3' or s.AFDELING='5' or s.AFDELING='14')"
 				+"and aa.LEVMANPLANNING = '1' order by s.ORDERNUMMER,s.SEQUENTIE";
 			       		
 			       		
  		System.out.println(sql1);
 			    		Statement st1 = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			    		ResultSet rs1 = st1.executeQuery(sql1);
-			    	//	suma=rs1.getString("MATERIAAL");
+			    		
+setinfo("create sql2 to RW from magazin 2");	
+	//sql to return from assembly
+	String sql2="select r.BONNR as NR, r.VOLGNUMMER, r.SEQUENTIE,r.ARTIKELCODE, r.ARTIKELOMSCHRIJVING,r.CFRECEPTIEDATUM,r.CFEFFLEVERINGSDATUM, "
+				+ "aa.VERSCHAFFINGSCODE,r.BESTELEENHEID,r.BESTELD,r.GELEVERD,ak.CFFIRMAMUNT,ak.CFKOSTPRIJS,ak.MATERIAAL,ak.SOORT,r.LEVERANCIER, "
+				+ "(select sum(ak.MATERIAAL * r.GELEVERD) from receptiedetail r left join artikel_kostprijs ak on r.ARTIKELCODE = ak.ARTIKELCODE where r.BONNR=NR and "
+				+ "(r.LEVERANCIER = '500' or r.LEVERANCIER = '9999999') and aa.VERSCHAFFINGSCODE='P' and ak.SOORT='4' and r.CFRECEPTIEDATUM between '"+start+"' and '"+stop+"') as summ "
+				+ "from receptiedetail r "
+				+ "left join artikel_algemeen aa on r.ARTIKELCODE = aa.ARTIKELCODE "
+				+ "left join artikel_kostprijs ak on r.ARTIKELCODE = ak.ARTIKELCODE "
+				+ "where (r.LEVERANCIER = '500' or r.LEVERANCIER = '9999999') and aa.VERSCHAFFINGSCODE='P' and ak.SOORT='4' and  r.CFRECEPTIEDATUM between '"+start+"' and '"+stop+"' "
+				+ "order by r.BONNR,r.VOLGNUMMER";
+	
+		System.out.println(sql2);
+		Statement st2 = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+		ResultSet rs2 = st2.executeQuery(sql2);
+				    	
 setinfo("create RWWartosc to xml");	
 System.out.println("create RWWartosc to xml");
-			    		while(rs1.next()){
+			    		while(rs1.next()){		//while to RWWartosc from sql1
 			    			
 			    			//this if return nr bonnr and articlecode when is null value
 			    			if( rs1.getString("SEQUENTIE")==null || rs1.getString("ARTIKELCODE")==null ||  rs1.getString("ARTIKELOMSCHRIJVING")==null || 
 			    					rs1.getString("BESTELD")==null || rs1.getString("GELEVERD")==null || rs1.getString("LEVERINGSDATUMINGAVERECEPTIE")==null ||
 			    					rs1.getString("BESTELEENHEID")==null||rs1.getString("Geleverd")==null || rs1.getString("MATERIAAL")==null || 
-			    					rs1.getString("CFKOSTPRIJS")==null || rs1.getString("CFFIRMAMUNT")==null || rs1.getString("LEVNAAM")==null || 
+			    					rs1.getString("CFKOSTPRIJS")==null || rs1.getString("CFFIRMAMUNT")==null || rs1.getString("AFDELING")==null || 
 			    					 rs1.getString("VERSCHAFFINGSCODE")==null || rs1.getString("LEVMANPLANNING")==null || rs1.getString("summ")==null)
-			    			{seterror_nr("\n Error is in WZ in Magazine 102 in WZnr: "+rs1.getString("NR")+" , Artiklcode: "+rs1.getString("Artikelcode")+"    You can select:\n"
+			    			{seterror_nr("\n Error is in RW in Magazine 102 in RWnr: "+rs1.getString("NR")+" , Artiklcode: "+rs1.getString("Artikelcode")+"    You can select:\n"
 			    					+"select s.ORDERNUMMER as NR,s.SEQUENTIE, s.ARTIKELCODE,s.ARTIKELOMSCHRIJVING,s.BESTELD, s.LEVERINGSDATUMEFFECTIEF, s.LEVERINGSDATUMINGAVERECEPTIE, "
-			    					+"s.BESTELEENHEID,s.GELEVERD, a.MATERIAAL,a.CFKOSTPRIJS,a.CFFIRMAMUNT , aa.LEVNAAM, aal.VERSCHAFFINGSCODE, aa.LEVMANPLANNING,"
+			    					+"s.BESTELEENHEID,s.GELEVERD, a.MATERIAAL,a.CFKOSTPRIJS,a.CFFIRMAMUNT, s.AFDELING, aal.VERSCHAFFINGSCODE, aa.LEVMANPLANNING,"
 			    					+"(select sum(a.MATERIAAL * s.GELEVERD)from storenotesdetail s left join artikel_kostprijs a on a.ARTIKELCODE = s.ARTIKELCODE "
-			    					+"where NR=s.ORDERNUMMER and s.Leverancier = '102'   and  a.SOORT = '4' and s.LEVERINGSDATUMEFFECTIEF between '"+ datastart +"' and '"+ datastop+"') as summ "
+			    					+"where NR=s.ORDERNUMMER and s.Leverancier = '102'   and  a.SOORT = '4' and s.LEVERINGSDATUMEFFECTIEF between '"+ start +"' and '"+ stop+"' and"
+			    					+ "(s.AFDELING='500' or s.AFDELING='2' or s.AFDELING='3' or s.AFDELING='5' or s.AFDELING='14')) as summ "
 			    					+"from storenotesdetail s "
 			    					+"left join artikel_kostprijs a on a.ARTIKELCODE = s.ARTIKELCODE "
 			    					+"left join artikel_aankoop aa on aa.ARTIKELCODE = s.ARTIKELCODE "
@@ -325,17 +345,14 @@ setinfo("create RWWartosc to xml      "+rwNumber);
 							       		DataRW.appendChild(doc.createTextNode(rs1.getString("LEVERINGSDATUMINGAVERECEPTIE").substring(0,4) +"-"+rs1.getString("LEVERINGSDATUMINGAVERECEPTIE").substring(5,7)+"-"+rs1.getString("LEVERINGSDATUMINGAVERECEPTIE").substring(8,10)));
 							       		rwWartosc.appendChild(DataRW);
 						       		
-						       		
 								       		// if munt <> PLN  then search currency exchange that day and convert the total
 								       		String strCena = null;
 								       	
-						       		
 								       		if(rs1.getString("CFFIRMAMUNT").equals("PLN")){  
 								       			strCena = rs1.getString("summ");
 								       			
 								       		}else{strCena = ConvertValutaToPLN(rs1.getString("CFFIRMAMUNT"), rs1.getString("summ"), datumRW);
-								       		
-									       				
+								       					
 								       		}// end else if
 								       		
 								       		BigDecimal bdAmount = new BigDecimal(strCena);
@@ -353,11 +370,22 @@ setinfo("create RWWartosc to xml      "+rwNumber);
 							       		rwWartosc.appendChild(DataWydaniaRW);
 						       		
 							       		Element SkadRW = doc.createElement("SkadRW");
-							       		SkadRW.appendChild(doc.createTextNode(rs1.getString("LEVNAAM")));
+							       		SkadRW.appendChild(doc.createTextNode("Magazyn czêœci gotowych"));
 							       		rwWartosc.appendChild(SkadRW);
 							       		
+							       		String recipient = rs1.getString("AFDELING");
+							       		String dokad = null;
+							       		if(recipient.equals("500"))
+							       		{
+							       			dokad="FAT Produkcja";
+							       		}
+							       		else if(recipient.equals("2") || recipient.equals("14") || recipient.equals("5") || recipient.equals("3"))
+							       		{
+							       			dokad="Monta¿";
+							       		}
+							       		
 							       		Element DokadRW = doc.createElement("DokadRW");
-							       		DokadRW.appendChild(doc.createTextNode(/*rs1.getString()*/"Magazyn czêœci gotowych"));
+							       		DokadRW.appendChild(doc.createTextNode(dokad));
 							       		rwWartosc.appendChild(DokadRW);
 						       		
 							       		//optional childs if needed to be add
@@ -369,20 +397,116 @@ setinfo("create RWWartosc to xml      "+rwNumber);
 //							       		Element DataFaRW = doc.createElement("DataFaRW");
 //							       		DataFaRW.appendChild(doc.createTextNode("8960000138"));
 //							       		rwWartosc.appendChild(DataFaRW);
-							       		
-				    			
+							       			
 			    			} //ENDIF for RWWartosz
-			    		} //END WHILE
+			    		} //END WHILE to RWWartosc from sql1
 			    		
 			    		rs1.beforeFirst();
 			    		
+while(rs2.next()){		//while to RWWartosc from sql2
+			    			
+			    			//this if return nr bonnr and articlecode when is null value
+			    			if( rs2.getString("VOLGNUMMER")==null || rs2.getString("SEQUENTIE")==null ||  rs2.getString("ARTIKELCODE")==null || 
+			    					rs2.getString("ARTIKELOMSCHRIJVING")==null || rs2.getString("CFRECEPTIEDATUM")==null || rs2.getString("CFEFFLEVERINGSDATUM")==null ||
+			    					rs2.getString("VERSCHAFFINGSCODE")==null||rs2.getString("BESTELEENHEID")==null || rs2.getString("BESTELD")==null || 
+			    					rs2.getString("GELEVERD")==null || rs2.getString("CFFIRMAMUNT")==null || rs2.getString("CFKOSTPRIJS")==null || 
+			    					 rs2.getString("MATERIAAL")==null ||  rs2.getString("summ")==null)
+			    			{seterror_nr("\n Error is in RW in Magazine 102 in RWnr: "+rs2.getString("NR")+" , Artiklcode: "+rs2.getString("Artikelcode")+"    You can select:\n"
+			    							+"select r.BONNR as NR, r.VOLGNUMMER, r.SEQUENTIE,r.ARTIKELCODE, r.ARTIKELOMSCHRIJVING,r.CFRECEPTIEDATUM,r.CFEFFLEVERINGSDATUM, "
+			    							+ "aa.VERSCHAFFINGSCODE,r.BESTELEENHEID,r.BESTELD,r.GELEVERD,ak.CFFIRMAMUNT,ak.CFKOSTPRIJS,ak.MATERIAAL,ak.SOORT,r.LEVERANCIER, "
+			    							+ "(select sum(ak.MATERIAAL * r.GELEVERD) from receptiedetail r left join artikel_kostprijs ak on r.ARTIKELCODE = ak.ARTIKELCODE where r.BONNR=NR and "
+			    							+ "(r.LEVERANCIER = '500' or r.LEVERANCIER = '9999999') and aa.VERSCHAFFINGSCODE='P' and ak.SOORT='4' and r.CFRECEPTIEDATUM between '"+start+"' and '"+stop+"') as summ "
+			    							+ "from receptiedetail r "
+			    							+ "left join artikel_algemeen aa on r.ARTIKELCODE = aa.ARTIKELCODE "
+			    							+ "left join artikel_kostprijs ak on r.ARTIKELCODE = ak.ARTIKELCODE "
+			    							+ "where (r.LEVERANCIER = '500' or r.LEVERANCIER = '9999999') and aa.VERSCHAFFINGSCODE='P' and ak.SOORT='4' and  r.CFRECEPTIEDATUM between '"+start+"' and '"+stop+"' "
+			    							+ "order by r.BONNR,r.VOLGNUMMER");}
+			    			
+			    			
+			    			if (rs2.getInt("NR") != rememberRwNr){
+			    					countRW++;
+			    					rememberRwNr = rs2.getInt("NR");
+			    					String datumRW = rs2.getString("CFRECEPTIEDATUM").substring(0,10); // data fakturyzacji 
+			    					Element rwWartosc = doc.createElement("RWWartosc");
+			    					rwWartosc.setAttribute("xmlns", "http://jpk.mf.gov.pl/wzor/2016/03/09/03093/");
+			    					RW.appendChild(rwWartosc);
+					       		
+			    							rwNumber = "RW " +rs2.getString("NR");
+			    							System.out.println("Detected RW with Number: "+ rwNumber);
+setinfo("create RWWartosc to xml      "+rwNumber);		
+					    				Element NumerRW = doc.createElement("NumerRW");
+							       		NumerRW.appendChild(doc.createTextNode(rwNumber));
+					    				rwWartosc.appendChild(NumerRW);
+					    										       							    						
+							       		Element DataRW = doc.createElement("DataRW");		//data dostarczenia
+							       		DataRW.appendChild(doc.createTextNode(rs2.getString("CFEFFLEVERINGSDATUM").substring(0,4) +"-"+rs2.getString("CFEFFLEVERINGSDATUM").substring(5,7)+"-"+rs2.getString("CFEFFLEVERINGSDATUM").substring(8,10)));
+							       		rwWartosc.appendChild(DataRW);
+						       		
+								       		// if munt <> PLN  then search currency exchange that day and convert the total
+								       		String strCena = null;
+								       	
+								       		if(rs2.getString("CFFIRMAMUNT").equals("PLN")){  
+								       			strCena = rs2.getString("summ");
+								       			
+								       		}else{strCena = ConvertValutaToPLN(rs2.getString("CFFIRMAMUNT"), rs2.getString("summ"), datumRW);
+								       					
+								       		}// end else if
+								       		
+								       		BigDecimal bdAmount = new BigDecimal(strCena);
+								       		bdAmount = bdAmount.setScale(2, BigDecimal.ROUND_HALF_UP);
+								       		totalamountRW = totalamountRW.add(bdAmount) ;
+								       		
+							       		Element WartoscRW = doc.createElement("WartoscRW");
+							       		WartoscRW.appendChild(doc.createTextNode(new BigDecimal(strCena).setScale(2, BigDecimal.ROUND_HALF_UP).toString()));
+							       		rwWartosc.appendChild(WartoscRW);
+						       		
+							       			//add totaal to final sumation of all RW
+						       		
+							       		Element DataWydaniaRW = doc.createElement("DataWydaniaRW");
+							       		DataWydaniaRW.appendChild(doc.createTextNode(datumRW));
+							       		rwWartosc.appendChild(DataWydaniaRW);
+						       		
+							       		String levnam = rs2.getString("LEVERANCIER");
+							       		String skad = null;
+							       		if(levnam.equals("500"))  // LEVERANCIER = '500' - "FAT Produkcja"
+							       		{
+							       			skad="FAT Produkcja";
+							       		}
+							       		else if(levnam.equals("9999999")) // LEVERANCIER = '9999999' - "Monta¿"
+							       		{
+							       			skad="Monta¿";
+							       		}
+							       		
+							       		Element SkadRW = doc.createElement("SkadRW");
+							       		SkadRW.appendChild(doc.createTextNode(skad)); 
+							       		rwWartosc.appendChild(SkadRW);
+							       		
+							       		Element DokadRW = doc.createElement("DokadRW");
+							       		DokadRW.appendChild(doc.createTextNode(/*rs2.getString()*/"Magazyn czêœci gotowych"));  //do 102 MCG
+							       		rwWartosc.appendChild(DokadRW);
+						       		
+							       		//optional childs if needed to be add
+							       		
+//							       		Element NumerFaRW = doc.createElement("NumerFaRW");
+//							       		NumerFaRW.appendChild(doc.createTextNode("8960000138"));
+//							       		rwWartosc.appendChild(NumerFaRW);
+//						       		
+//							       		Element DataFaRW = doc.createElement("DataFaRW");
+//							       		DataFaRW.appendChild(doc.createTextNode("8960000138"));
+//							       		rwWartosc.appendChild(DataFaRW);
+							       			
+			    			} //ENDIF for RWWartosz
+			    		} //END WHILE to RWWartosc from sql2
+			    		
+			    		rs2.beforeFirst();
+			    		
 			    		// RWWIERSZ
 setinfo("create RWWiersz to xml");	
-			    		while(rs1.next()){
+			    		while(rs1.next()){			//WHILE to RWWIERSZ from sql1
 			    			
 			    			
 			    			
-			    			String datumRW = rs1.getString("LEVERINGSDATUMEFFECTIEF");//String datumRW = rs1.getString("datum");   ???????????????????????????
+			    			String datumRW = rs1.getString("LEVERINGSDATUMEFFECTIEF");
 			    			
 			    			Element RWWiersz = doc.createElement("RWWiersz");
 			    			RWWiersz.setAttribute("xmlns", "http://jpk.mf.gov.pl/wzor/2016/03/09/03093/");
@@ -442,17 +566,76 @@ setinfo("create RWWiersz to xml");
 					       		Element WartoscPozycjiRW = doc.createElement("WartoscPozycjiRW");
 					       		WartoscPozycjiRW.appendChild(doc.createTextNode(total.toString()));
 					       		RWWiersz.appendChild(WartoscPozycjiRW);
-					       		
-				    			
-			    			
-			    			
-			    			
-			    			
-			    			
-			    			
-			    			
-			    		} //END WHILE
+
+			    		} //END WHILE to RWWIERSZ from sql1
 			    		
+while(rs2.next()){			//WHILE to RWWIERSZ from sql2
+			    			
+			    			
+			    			
+			    			String datumRW = rs2.getString("CFRECEPTIEDATUM");
+			    			
+			    			Element RWWiersz = doc.createElement("RWWiersz");
+			    			RWWiersz.setAttribute("xmlns", "http://jpk.mf.gov.pl/wzor/2016/03/09/03093/");
+				       		RW.appendChild(RWWiersz);
+				       				
+				       				rwNumber = "RW " +rs2.getString("NR")+"/"+rs2.getString("VOLGNUMMER");
+				       				
+					       		Element Numer2RW = doc.createElement("Numer2RW");
+					       		Numer2RW.appendChild(doc.createTextNode(rwNumber));
+					       		RWWiersz.appendChild(Numer2RW);
+					       		
+					       		Element KodTowaruRW = doc.createElement("KodTowaruRW");
+					       		KodTowaruRW.appendChild(doc.createTextNode(rs2.getString("ARTIKELCODE"))); 
+					       		RWWiersz.appendChild(KodTowaruRW);
+					       		
+					       		
+					       		
+					       		String StrNazwaTowaruRW = rs2.getString("ARTIKELOMSCHRIJVING"); 
+				//					if (rs2.getString("Artikelcode").equals("M") )	{
+				//						String StrTekst = rs2.getString("Tekst");
+				//						System.out.println("for bonnummer "+ rwNumber + " we have following articledescription: "+ StrTekst);
+				//						StrNazwaTowaruRW=StrTekst;
+				//					}
+											
+					       		
+					       		Element NazwaTowaruRW = doc.createElement("NazwaTowaruRW");
+					       		NazwaTowaruRW.appendChild(doc.createTextNode(StrNazwaTowaruRW));
+					       		RWWiersz.appendChild(NazwaTowaruRW);
+					       		
+					       		Element IloscWydanaRW = doc.createElement("IloscWydanaRW");
+					       		IloscWydanaRW.appendChild(doc.createTextNode(rs2.getString("GELEVERD"))); //IloscWydanaRW.appendChild(doc.createTextNode(rs2.getString("Geleverd")));
+					       		RWWiersz.appendChild(IloscWydanaRW);
+					       		
+					       		Element JednostkaMiaryRW = doc.createElement("JednostkaMiaryRW");
+					       		JednostkaMiaryRW.appendChild(doc.createTextNode(rs2.getString("BESTELEENHEID"))); //JednostkaMiaryRW.appendChild(doc.createTextNode(rs2.getString("besteleenheid")));
+					       		RWWiersz.appendChild(JednostkaMiaryRW);
+					       		
+						       		// if munt <> PLN  then search currency exchange that day and convert the total
+						 		String strCena = null;
+										       		
+						       		if(rs2.getString("CFFIRMAMUNT").equals("PLN")){
+						       			strCena = rs2.getString("MATERIAAL");
+						       		}else{
+						       			strCena = ConvertValutaToPLN(rs2.getString("CFFIRMAMUNT"), rs2.getString("MATERIAAL"), datumRW);
+						       		}// end else if
+					       		
+					       		Element CenaJednRW = doc.createElement("CenaJednRW");
+					       		CenaJednRW.appendChild(doc.createTextNode(new BigDecimal(strCena).setScale(2, BigDecimal.ROUND_HALF_UP).toString()));
+					       		RWWiersz.appendChild(CenaJednRW);
+					       		
+						       		BigDecimal bdprice = new BigDecimal(strCena);
+						       				bdprice = bdprice.setScale(2,BigDecimal.ROUND_UP);
+						       		BigDecimal bdqty = new BigDecimal(rs2.getString("GELEVERD"));
+						       		BigDecimal total = bdprice.multiply(bdqty);
+						       				total = total.setScale(2,BigDecimal.ROUND_UP);
+					       		
+					       		Element WartoscPozycjiRW = doc.createElement("WartoscPozycjiRW");
+					       		WartoscPozycjiRW.appendChild(doc.createTextNode(total.toString()));
+					       		RWWiersz.appendChild(WartoscPozycjiRW);
+						}//END WHILE to RWWIERSZ from sql2
+
+
 			    		Element RWCtrl = doc.createElement("RWCtrl");
 			       		RW.appendChild(RWCtrl);
 			    		
@@ -471,10 +654,10 @@ setinfo("create RWWiersz to xml");
 			    		
 			    		st1.close();
 			    		rs1.close();
-			       		
-					       		
-			    		     		
-			    		 		
+			    		
+			    		st2.close();
+			    		rs2.close();
+	
 					       		return doc;
 			    		 				       		
 		    }
@@ -498,17 +681,13 @@ private static Document PZ(Document doc, Element root, String start , String sto
 		    	int countPZ = 0;   //counting the numbers of WZ`s
 		    	
 		    	int oldPzNr = 0;
-		    	
-		    	
-		    	
-		    	
-		    	
+
 		    	Element PZ = doc.createElement("tns:PZ");
 			    	root.appendChild(PZ);	           
 			            
 			       		//  Podmiot1
 setinfo("create sql to PZ from magazin 102");	
-System.out.println("create sql to PZ from magazin MAIN");	
+System.out.println("create sql to PZ from magazin 102");	
       		
 			
 						String sql1 ="select  re.bonnr,re.SEQUENTIE, re.volgnummer, b.leverancier,aa.LEVNAAM,b.ORDERNUMMER,b.ARTIKELCODE,b.ARTIKELOMSCHRIJVING, "
@@ -525,7 +704,7 @@ System.out.println("create sql to PZ from magazin MAIN");
 								+ "b.LEVERINGSDATUMINGAVERECEPTIE between '"+start+"' and '"+stop+"' "
 								+ "and aa.LEVMANPLANNING = '1' # dostawca glowny -  tymczaosowo bo to zalezne jest od daty "
 								+ "order by re.BONNR, re.VOLGNUMMER ";
-
+						System.out.println(sql1);
 			    		Statement st1 = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			    		ResultSet rs1 = st1.executeQuery(sql1);
 setinfo("Create PZWartosc to xml");	
@@ -535,7 +714,7 @@ setinfo("Create PZWartosc to xml");
 			    			if(rs1.getString("volgnummer")==null || rs1.getString("leverancier")==null || rs1.getString("LEVNAAM")==null  || rs1.getString("ordernummer")==null ||
 			    					rs1.getString("LEVERINGSDATUMINGAVERECEPTIE")==null ||
 			    					rs1.getString("ARTIKELCODE")==null || rs1.getString("artikelomschrijving")==null || rs1.getString("geleverd")==null || 
-			    					rs1.getString("besteleenheid")==null || rs1.getString("FACTURATIEDATUM")==null )   		// 		
+			    					rs1.getString("besteleenheid")==null )   		// 		
 			    			{seterror_nr("\n Error is in PZ in Magazine MAIN in Bonnr: "+rs1.getString("bonnr")+" , Artiklcode: "+rs1.getString("ARTIKELCODE")+"   You can select:\n"
 			    				+"select  re.bonnr, re.volgnummer, b.leverancier,aa.LEVNAAM,b.ORDERNUMMER,b.ARTIKELCODE,b.ARTIKELOMSCHRIJVING, "
 								+"b.BESTELEENHEID,b.GELEVERD, b.MUNT,b.CFSTOCK,b.LEVERINGSDATUMINGAVERECEPTIE,b.FACTURATIEDATUM, b.eenheidsprijs, "
@@ -557,7 +736,7 @@ setinfo("Create PZWartosc to xml");
 			    			{
 			    				
 setinfo("Create PZWartosc to xml      "+bonnr);	
-			    			if (bonnr != oldPzNr && countPZ > 0 && code.equals("P") ){
+			    			if (bonnr != oldPzNr && countPZ > 0 && code.equals("P") && rs1.getString("FACTURATIEDATUM")!=null){
 			    				 
 			    				    System.out.println("ADD 1 PZWartosc: "+pzNumber+" | " + pzDatum+" | "+pzAmount+" | "+pzLeveringsdatum + " | " + pzLeverancier  );
 			    					doc = PZWartosc(doc, PZ, pzNumber, pzDatum, pzAmount, pzLeveringsdatum, pzLeverancier);

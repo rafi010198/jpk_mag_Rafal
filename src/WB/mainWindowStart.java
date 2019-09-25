@@ -1,13 +1,16 @@
 package WB;
 // main jpk_mag
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.Frame;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.lang.management.ThreadInfo;
 import java.net.SecureCacheResponse;
 import java.sql.SQLException;
@@ -514,7 +517,20 @@ public class mainWindowStart extends JFrame {
 		lblChanges.setBounds(233, 333, 71, 14);
 		contentPane.add(lblChanges);
 		
-
+		
+		JButton btnOpenDirectory = new JButton("Dir");
+		btnOpenDirectory.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					Desktop.getDesktop().open(new File(Parameters.getPathToSave()));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+		btnOpenDirectory.setBounds(398, 202, 88, 49);
+		contentPane.add(btnOpenDirectory);
 	}
 		
 		
