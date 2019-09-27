@@ -31,18 +31,16 @@ public static void main() throws SQLException, ParseException {
 	
 		        try {
 		        	
-		        	System.out.println(datastart);
-		        	System.out.println(datastop);
-		        	System.out.println(directoryname);
 		        	
 		    		// configure directory and files
 		        	Parameters.createDirectory();
-		        	File f = Parameters.createFile("jpk_MAG_2.xml");
+		        	File f = Parameters.createFile("jpk_MAG_102.xml");
 
 					// create the xml data
 		        	
-System.out.println("create the xml data");
-setinfo("create the xml for magazine 2");
+setinfo("create the xml for MAGAZYN CZʌCI GOTOWYCH (102)");
+setsaveinfo(info);
+System.out.println(info);
 
 		            DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
 		            DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
@@ -109,7 +107,9 @@ setinfo("create the xml for magazine 2");
 			            tfe.printStackTrace();
 			        }
 		        
-		        setinfo("Done JPK for Magazine 2");	
+setinfo("Done JPK for MAGAZYN CZʌCI GOTOWYCH (102)");	
+setsaveinfo(info);	
+System.out.println(info+"\n\n");
 		    }
 		    
 		    
@@ -180,7 +180,7 @@ private static Document podmiot(Document doc, Element root ){
 					       		IdentyfikatorPodmiotu.appendChild(etdPelnaNazwa);
 					       		
 					       		Element etdREGON = doc.createElement("etd:REGON");
-					       		etdREGON.appendChild(doc.createTextNode("222222222"));
+					       		etdREGON.appendChild(doc.createTextNode("931024534"));
 					       		IdentyfikatorPodmiotu.appendChild(etdREGON);
 					       		
 			       		
@@ -234,7 +234,7 @@ private static Document podmiot(Document doc, Element root ){
 		    
 private static Document magazyn(Document doc, Element root){
 			   Element Magazyn = doc.createElement("tns:Magazyn");
-				Magazyn.appendChild(doc.createTextNode("MAGAZYN CZʌCI GOTOWYCH ")); //name magazin ????????????
+				Magazyn.appendChild(doc.createTextNode("MAGAZYN CZʌCI GOTOWYCH")); 
 				root.appendChild(Magazyn);	
 			   return doc;
 			   
@@ -264,8 +264,8 @@ private static Document RW(Document doc, Element root, String start , String sto
 			       root.appendChild(RW);	           
 			            
 			       		//  Podmiot1
-
-setinfo("create sql1 to RW from magazin 2");
+setinfo("create sql1 to RW for MAGAZYN CZʌCI GOTOWYCH (102)");
+System.out.println(info);
 
 			       		
 	String sql1 = "select s.ORDERNUMMER as NR,s.SEQUENTIE, s.ARTIKELCODE,s.ARTIKELOMSCHRIJVING,s.BESTELD, s.LEVERINGSDATUMEFFECTIEF, s.LEVERINGSDATUMINGAVERECEPTIE, "
@@ -285,8 +285,9 @@ setinfo("create sql1 to RW from magazin 2");
  		System.out.println(sql1);
 			    		Statement st1 = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			    		ResultSet rs1 = st1.executeQuery(sql1);
-			    		
-setinfo("create sql2 to RW from magazin 2");	
+setsaveinfo(info);			    		
+setinfo("create sql2 to RW for MAGAZYN CZʌCI GOTOWYCH (102)");	
+System.out.println(info);	
 	//sql to return from assembly
 	String sql2="select r.BONNR as NR, r.VOLGNUMMER, r.SEQUENTIE,r.ARTIKELCODE, r.ARTIKELOMSCHRIJVING,r.CFRECEPTIEDATUM,r.CFEFFLEVERINGSDATUM, "
 				+ "aa.VERSCHAFFINGSCODE,r.BESTELEENHEID,r.BESTELD,r.GELEVERD,ak.CFFIRMAMUNT,ak.CFKOSTPRIJS,ak.MATERIAAL,ak.SOORT,r.LEVERANCIER, "
@@ -301,9 +302,10 @@ setinfo("create sql2 to RW from magazin 2");
 		System.out.println(sql2);
 		Statement st2 = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 		ResultSet rs2 = st2.executeQuery(sql2);
-				    	
+setsaveinfo(info);				    	
 setinfo("create RWWartosc to xml");	
-System.out.println("create RWWartosc to xml");
+setsaveinfo(info);
+System.out.println(info);
 			    		while(rs1.next()){		//while to RWWartosc from sql1
 			    			
 			    			//this if return nr bonnr and articlecode when is null value
@@ -336,6 +338,7 @@ System.out.println("create RWWartosc to xml");
 					       		
 			    							rwNumber = "RW " +rs1.getString("NR");
 			    							System.out.println("Detected RW with Number: "+ rwNumber);
+
 setinfo("create RWWartosc to xml      "+rwNumber);		
 					    				Element NumerRW = doc.createElement("NumerRW");
 							       		NumerRW.appendChild(doc.createTextNode(rwNumber));
@@ -502,6 +505,8 @@ setinfo("create RWWartosc to xml      "+rwNumber);
 			    		
 			    		// RWWIERSZ
 setinfo("create RWWiersz to xml");	
+setsaveinfo(info);
+System.out.println(info);
 			    		while(rs1.next()){			//WHILE to RWWIERSZ from sql1
 			    			
 			    			
@@ -513,7 +518,8 @@ setinfo("create RWWiersz to xml");
 				       		RW.appendChild(RWWiersz);
 				       				
 				       				rwNumber = "RW " +rs1.getString("NR")+"/"+rs1.getString("SEQUENTIE");
-				       				
+
+setinfo("create RWWiersz to xml         "+rwNumber);				       				
 					       		Element Numer2RW = doc.createElement("Numer2RW");
 					       		Numer2RW.appendChild(doc.createTextNode(rwNumber));
 					       		RWWiersz.appendChild(Numer2RW);
@@ -554,7 +560,7 @@ setinfo("create RWWiersz to xml");
 						       		}// end else if
 					       		
 					       		Element CenaJednRW = doc.createElement("CenaJednRW");
-					       		CenaJednRW.appendChild(doc.createTextNode(strCena));
+					       		CenaJednRW.appendChild(doc.createTextNode(new BigDecimal(strCena).setScale(2, BigDecimal.ROUND_HALF_UP).toString()));
 					       		RWWiersz.appendChild(CenaJednRW);
 					       		
 						       		BigDecimal bdprice = new BigDecimal(strCena);
@@ -686,12 +692,12 @@ private static Document PZ(Document doc, Element root, String start , String sto
 			    	root.appendChild(PZ);	           
 			            
 			       		//  Podmiot1
-setinfo("create sql to PZ from magazin 102");	
-System.out.println("create sql to PZ from magazin 102");	
+setinfo("create sql to PZ for MAGAZYN CZʌCI GOTOWYCH (102)");	
+System.out.println(info);	
       		
 			
 						String sql1 ="select  re.bonnr,re.SEQUENTIE, re.volgnummer, b.leverancier,aa.LEVNAAM,b.ORDERNUMMER,b.ARTIKELCODE,b.ARTIKELOMSCHRIJVING, "
-								+"b.BESTELEENHEID,b.GELEVERD, b.MUNT,b.CFSTOCK,b.LEVERINGSDATUMINGAVERECEPTIE,b.FACTURATIEDATUM, b.eenheidsprijs, "
+								+"a.OMSCHRIJVING,b.BESTELEENHEID,b.GELEVERD, b.MUNT,b.CFSTOCK,b.LEVERINGSDATUMINGAVERECEPTIE,b.FACTURATIEDATUM, b.eenheidsprijs, "
 								+"a.VERSCHAFFINGSCODE "
 								+ "from bestellingdetail b "
 								+ "left join artikel_algemeen a "
@@ -707,17 +713,20 @@ System.out.println("create sql to PZ from magazin 102");
 						System.out.println(sql1);
 			    		Statement st1 = connection.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 			    		ResultSet rs1 = st1.executeQuery(sql1);
+setsaveinfo(info);
 setinfo("Create PZWartosc to xml");	
+setsaveinfo(info);
+System.out.println(info);
 			    		while(rs1.next()){
 			    			
 			    			//this if return nr bonnr and articlecode when is null value
-			    			if(rs1.getString("volgnummer")==null || rs1.getString("leverancier")==null || rs1.getString("LEVNAAM")==null  || rs1.getString("ordernummer")==null ||
+			    			if((rs1.getString("bonnr")!=null && rs1.getString("volgnummer")==null) || rs1.getString("leverancier")==null || rs1.getString("LEVNAAM")==null  || rs1.getString("ordernummer")==null ||
 			    					rs1.getString("LEVERINGSDATUMINGAVERECEPTIE")==null ||
-			    					rs1.getString("ARTIKELCODE")==null || rs1.getString("artikelomschrijving")==null || rs1.getString("geleverd")==null || 
+			    					rs1.getString("ARTIKELCODE")==null || (rs1.getString("artikelomschrijving")==null && rs1.getString("OMSCHRIJVING")==null) || rs1.getString("geleverd")==null || 
 			    					rs1.getString("besteleenheid")==null )   		// 		
 			    			{seterror_nr("\n Error is in PZ in Magazine MAIN in Bonnr: "+rs1.getString("bonnr")+" , Artiklcode: "+rs1.getString("ARTIKELCODE")+"   You can select:\n"
 			    				+"select  re.bonnr, re.volgnummer, b.leverancier,aa.LEVNAAM,b.ORDERNUMMER,b.ARTIKELCODE,b.ARTIKELOMSCHRIJVING, "
-								+"b.BESTELEENHEID,b.GELEVERD, b.MUNT,b.CFSTOCK,b.LEVERINGSDATUMINGAVERECEPTIE,b.FACTURATIEDATUM, b.eenheidsprijs, "
+								+"a.OMSCHRIJVING,b.BESTELEENHEID,b.GELEVERD, b.MUNT,b.CFSTOCK,b.LEVERINGSDATUMINGAVERECEPTIE,b.FACTURATIEDATUM, b.eenheidsprijs, "
 								+"a.VERSCHAFFINGSCODE "
 								+ "from bestellingdetail b "
 								+ "left join artikel_algemeen a "
@@ -734,7 +743,7 @@ setinfo("Create PZWartosc to xml");
 			    			{
 			    			if(rs1.getString("bonnr")!=null && code!=null && rs1.getString("LEVNAAM")!=null && rs1.getString("leverancier").length()==6 && rs1.getString("leverancier").equals("119003")==false)
 			    			{
-			    				
+		    				
 setinfo("Create PZWartosc to xml      "+bonnr);	
 			    			if (bonnr != oldPzNr && countPZ > 0 && code.equals("P") && rs1.getString("FACTURATIEDATUM")!=null){
 			    				 
@@ -806,6 +815,8 @@ setinfo("Create PZWartosc to xml      "+bonnr);
 			    			{
 					    			String articlecode = rs1.getString("ARTIKELCODE");
 					    			String description = rs1.getString("artikelomschrijving");
+					    			if(rs1.getString("artikelomschrijving")==null)
+					    			{description=rs1.getString("OMSCHRIJVING");}
 					    			String quantity = rs1.getString("geleverd");
 					    			String unit = rs1.getString("besteleenheid");
 					    			String unitprice = rs1.getString("eenheidsprijs");
@@ -884,7 +895,7 @@ private static Document PZWartosc(Document doc, Element root, String pzNumber , 
 	root.appendChild(pzWartosc);
 	
 		Element NumerPZ = doc.createElement("NumerPZ");
-		NumerPZ.appendChild(doc.createTextNode(pzNumber));
+		NumerPZ.appendChild(doc.createTextNode("PZ "+pzNumber));
 		pzWartosc.appendChild(NumerPZ);
 		
 		Element DataPZ = doc.createElement("DataPZ");
@@ -942,7 +953,7 @@ setinfo("Create PZWiersz to xml");
 	root.appendChild(PZWiersz);
 	
 		Element Numer2PZ = doc.createElement("Numer2PZ");
-		Numer2PZ.appendChild(doc.createTextNode(PZnumber));
+		Numer2PZ.appendChild(doc.createTextNode("PZ "+PZnumber));
 		PZWiersz.appendChild(Numer2PZ);
 		
 		Element KodTowaruPZ = doc.createElement("KodTowaruPZ");
@@ -1056,7 +1067,7 @@ private static String cumulInitPlusPriceTimeQty(String init, String unitprice, S
 		if(unitprice.equals("0")){return "0";}
 	
 	
-		//System.out.println("cumul proc: " + init + " | " + unitprice + " | " +qty + " | " +valuta + " | " +Datum + " | " );
+		System.out.println("cumul proc: " + init + " | " + unitprice + " | " +qty + " | " +valuta + " | " +Datum + " | " );
 	
 		// if munt <> PLN  then search currency exchange that day and convert the total
 		if(!valuta.equals("PLN")){	unitprice = ConvertValutaToPLN(valuta, unitprice, Datum); }// end else if

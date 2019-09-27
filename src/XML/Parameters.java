@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
+import WB.creator_for_former_month;
 import WB.loop_to_jpk;
 import WB.mainWindowStart;
 
@@ -38,7 +39,7 @@ public class Parameters extends mainWindowStart {
 	public static String pzLeveringsdatum = null;
 	public static String pzLeverancier 	= null;
 	
-	//  \\192.168.90.203\logistyka\JPK
+	//  "C:/Users/pl01.FIN/Desktop/RD/baza_do_zapisu_lokalnie/JPK";
 	//  //192.168.90.203/logistyka/JPK
 	
 	private static String PathToSave= "C:/Users/pl01.FIN/Desktop/RD/baza_do_zapisu_lokalnie/JPK";
@@ -67,7 +68,6 @@ public class Parameters extends mainWindowStart {
 	
 	public static void createDirectory(){
 		String path = getPath();
-		System.out.println(path);
 		File theDir = new File(path);
 		// if the directory does not exist, create it
 		if (!theDir.exists()) {
@@ -84,7 +84,7 @@ public static File createFile(String name){
 	String path = getPath();
 	SimpleDateFormat godz = new SimpleDateFormat("HH;mm");
 	Calendar date = Calendar.getInstance();
-	
+	System.out.println(path+name);
 	File f = new File(path+name);
 	if(f.exists() && !f.isDirectory()){
 		f = new File(path+today()+" "+godz.format(date.getTime())+" "+name);
@@ -116,7 +116,6 @@ public static String getPath(){
 		e.printStackTrace();
 	}
 String path1 = Parameters.getPathToSaveHours()+"/"+directoryname+"/";
-System.out.println(path1);
 File theDir = new File(path1);
 // if the directory does not exist, create it
 if (!theDir.exists()) {

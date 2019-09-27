@@ -1,6 +1,4 @@
 package WB;
-// main jpk_mag
-import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -11,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.lang.management.ThreadInfo;
 import java.net.SecureCacheResponse;
 import java.sql.SQLException;
@@ -30,6 +29,7 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.border.EmptyBorder;
 
@@ -74,23 +74,35 @@ public class mainWindowStart extends JFrame {
 	private static JLabel lblTime;
 	private static long starttime;
 	public static JTextArea textArea;
+	public static JScrollPane scrollPane_1 ;
 	
 	
 //---------------------------------------------------------------------------------------------
-	public static String info;
+	public static String info="";
+	/**this method set information and after show in window in field changes*/
 	public static void setinfo(String inf){
 		info=inf;
 	}
 	public static String getinfo(){
 		return info;
 	}
+	public static String saveinfo="";
+	/**this method set information and after show in window in field changes*/
+	public static void setsaveinfo(String savinf){
+		saveinfo=saveinfo+"<br>"+savinf;
+	}
+	public static String getsaveinfo(){
+		return info;
+	}
 	public static String error="";
+	/**this method set errors information and after show in window in field errors*/
 	public static void seterror(String err){
 		error=error+"\n"+err;
 	}
 	public static String geterror(){
 		return error;
 	}
+	/**this method set errors information and after show in window in field errors*/
 	public static String error_nr="";
 	public static void seterror_nr(String errnr){
 		error_nr=error_nr+errnr+"\n";
@@ -108,13 +120,8 @@ public class mainWindowStart extends JFrame {
 					
 					while(analizaGodzin.isEnabled()==false)
 					{
-						long time = new Date().getTime()-starttime;
-						long hours = TimeUnit.MILLISECONDS.toHours(time);
-						long minutes = TimeUnit.MILLISECONDS.toMinutes(time)%60;
-						long seconds = TimeUnit.MILLISECONDS.toSeconds(time)%60;
-						
-						lblTime.setText(hours+":"+minutes+":"+seconds);
-					//	lblTime.setText(new Timestamp(System.currentTimeMillis()-starttime).toString());
+
+						lblTime.setText(Parameters.time());
 						
 					sleep(1000);
 					}
@@ -141,12 +148,16 @@ public class mainWindowStart extends JFrame {
 					
 					while(analizaGodzin.isEnabled()==false)
 					{
-						lblchanges.setText(info);
+						lblchanges.setText("<html>"+saveinfo+"<br>- "+info+"</html>");
 						textArea.setText(error+"\n"+geterror_nr());
-					sleep(2000);
+						JScrollBar sb = scrollPane_1.getVerticalScrollBar();	//go to bottom in scroll panel in changes
+						sb.setValue( sb.getMaximum());
+					sleep(3000);
 					}
-					lblchanges.setText(info);
+					lblchanges.setText("<html>"+saveinfo+"<br>"+info+"<br><center>Done JPK_MAG</center></html>");
 					textArea.setText(error+"\n"+geterror_nr());
+					JScrollBar sb = scrollPane_1.getVerticalScrollBar();	//go to bottom in scroll panel in changes
+					sb.setValue( sb.getMaximum());
 					
 				} catch (Exception e) {
 					seterror(e.toString());
@@ -172,7 +183,7 @@ public class mainWindowStart extends JFrame {
 
 	public static void setdatastart_1(String dat){
 		datastart = dat+"-01";
-		System.out.println("ustawiono date: "+ datastart);
+		System.out.println("ustawiono date start: "+ datastart);
 	}
 	
 	public static String getdatastart(){
@@ -213,6 +224,9 @@ public class mainWindowStart extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					//this print "system.out.pintline" to text file
+					PrintStream o = new PrintStream(new File("//192.168.90.203/Common/Programy/JPK/log/log-mianWindowStart.txt")); 
+	//				System.setOut(o);
 					mainWindowStart frame = new mainWindowStart();
 					frame.setVisible(true);
 					
@@ -223,21 +237,16 @@ public class mainWindowStart extends JFrame {
 			}
 		});
 	}
-	
 
-	
-	
-	
-	
-	
 	/**
 	 * Create the frame.
 	 * @return 
 	 */
 	public mainWindowStart() {
+		setResizable(false);
 		setTitle("JPK_MAG              CUB4U");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 549, 634);
+		setBounds(100, 100, 541, 668);
 		contentPane = new JPanel();
 		contentPane.setBackground(SystemColor.menu);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -287,7 +296,7 @@ public class mainWindowStart extends JFrame {
 		yearChooser.setBounds(62, 117, 47, 20);
 		contentPane.add(yearChooser);
 		
-		JRadioButton rdbtnCreateXmlFor = new JRadioButton("create xml for a whole month");
+		JRadioButton rdbtnCreateXmlFor = new JRadioButton("create JPK for a whole month");
 		rdbtnCreateXmlFor.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				dstop.setEnabled(false);
@@ -300,11 +309,11 @@ public class mainWindowStart extends JFrame {
 		});
 		rdbtnCreateXmlFor.setSelected(true);
 		buttonGroup.add(rdbtnCreateXmlFor);
-		rdbtnCreateXmlFor.setBounds(111, 17, 218, 23);
+		rdbtnCreateXmlFor.setBounds(137, 21, 218, 23);
 		contentPane.add(rdbtnCreateXmlFor);
 		
-		JRadioButton rdbtnCreateXmlFrom = new JRadioButton("create xml for one day");
-		rdbtnCreateXmlFrom.setBounds(111, 69, 218, 20);
+		JRadioButton rdbtnCreateXmlFrom = new JRadioButton("create JPK for one day");
+		rdbtnCreateXmlFrom.setBounds(137, 73, 218, 20);
 		rdbtnCreateXmlFrom.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				dstop.setEnabled(false);
@@ -319,8 +328,8 @@ public class mainWindowStart extends JFrame {
 		buttonGroup.add(rdbtnCreateXmlFrom);
 		contentPane.add(rdbtnCreateXmlFrom);
 		
-		JRadioButton rdbtnCreataXmlFrom = new JRadioButton("create xml for a few days");
-		rdbtnCreataXmlFrom.setBounds(111, 43, 218, 23);
+		JRadioButton rdbtnCreataXmlFrom = new JRadioButton("create JPK for a few days");
+		rdbtnCreataXmlFrom.setBounds(137, 47, 218, 23);
 		rdbtnCreataXmlFrom.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				dstop.setEnabled(true);
@@ -334,33 +343,38 @@ public class mainWindowStart extends JFrame {
 		buttonGroup.add(rdbtnCreataXmlFrom);
 		contentPane.add(rdbtnCreataXmlFrom);
 	
-		JLabel lblCreateXmlFrom = new JLabel("Create xml from magazin:");
+		JLabel lblCreateXmlFrom = new JLabel("Create JPK from magazin:");
 		lblCreateXmlFrom.setBounds(191, 175, 158, 20);
 		lblCreateXmlFrom.setFont(new Font("Tahoma", Font.PLAIN, 12));
 		lblCreateXmlFrom.setHorizontalAlignment(SwingConstants.CENTER);
 		contentPane.add(lblCreateXmlFrom);
 		
-		JCheckBox chckbxMagazinMain = new JCheckBox("Magazin Main");
-		chckbxMagazinMain.setBounds(223, 202, 126, 23);
+		JCheckBox chckbxMagazinMain = new JCheckBox("Magazyn Zakupy (103)");
+		chckbxMagazinMain.setBounds(168, 202, 218, 23);
 		chckbxMagazinMain.setSelected(true);
 		contentPane.add(chckbxMagazinMain);
 		
-		JCheckBox chckbxMagazin_2 = new JCheckBox("Magazin 2");
-		chckbxMagazin_2.setBounds(223, 228, 126, 23);
+		JCheckBox chckbxMagazin_2 = new JCheckBox("Magazyn cz\u0119\u015Bci gotowych (102)");
+		chckbxMagazin_2.setBounds(168, 228, 218, 23);
 		chckbxMagazin_2.setSelected(true);
 		contentPane.add(chckbxMagazin_2);
 		
-		JCheckBox chckbxMagazin_105 = new JCheckBox("Magazin 105");
+		JCheckBox chckbxMagazin_105 = new JCheckBox("Magazyn material (105)");
 		chckbxMagazin_105.setSelected(true);
-		chckbxMagazin_105.setBounds(223, 254, 97, 23);
+		chckbxMagazin_105.setBounds(168, 254, 218, 23);
 		contentPane.add(chckbxMagazin_105);
 		
+		scrollPane_1 = new JScrollPane();
+		scrollPane_1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		scrollPane_1.setBounds(15, 352, 500, 61);
+		
+		contentPane.add(scrollPane_1);
+		
 		lblchanges = new JLabel("");
-		lblchanges.setBounds(38, 352, 449, 14);
-		contentPane.add(lblchanges);
+		scrollPane_1.setViewportView(lblchanges);
 		
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(0, 405, 533, 190);
+		scrollPane.setBounds(0, 439, 533, 190);
 		contentPane.add(scrollPane);
 
 		textArea = new JTextArea();
@@ -398,7 +412,6 @@ public class mainWindowStart extends JFrame {
 						else{
 							datum=yearChooser.getYear()+"-"+month;
 						}
-						System.out.println(datum);
 						setdatastart_1(datum);
 						setdatastop_1(datum);
 						
@@ -483,13 +496,13 @@ public class mainWindowStart extends JFrame {
 								e.printStackTrace();
 							}
 							System.out.println("JPK_MAG done");
-									
+							setinfo("JPK_MAG done");		
 								}
 				
 					}
 					
 					try {
-								Thread.sleep(2001);
+								Thread.sleep(3001);
 							} catch (InterruptedException e) {
 								seterror(e.toString());
 								e.printStackTrace();
@@ -509,7 +522,7 @@ public class mainWindowStart extends JFrame {
 		
 		JLabel lblErrors = new JLabel("Errors:");
 		lblErrors.setHorizontalAlignment(SwingConstants.CENTER);
-		lblErrors.setBounds(245, 377, 46, 14);
+		lblErrors.setBounds(246, 414, 46, 14);
 		contentPane.add(lblErrors);
 		
 		JLabel lblChanges = new JLabel("Changes:");
@@ -518,7 +531,12 @@ public class mainWindowStart extends JFrame {
 		contentPane.add(lblChanges);
 		
 		
-		JButton btnOpenDirectory = new JButton("Dir");
+		JButton btnOpenDirectory = new JButton("");
+		ImageIcon imagei = new ImageIcon(this.getClass().getResource("/folder.png"));
+		Image img = imagei.getImage();
+		Image newimg = img.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way  
+		ImageIcon imageIcon = new ImageIcon(newimg);
+		btnOpenDirectory.setIcon(imageIcon);
 		btnOpenDirectory.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
@@ -529,7 +547,7 @@ public class mainWindowStart extends JFrame {
 				}
 			}
 		});
-		btnOpenDirectory.setBounds(398, 202, 88, 49);
+		btnOpenDirectory.setBounds(453, 206, 40, 45);
 		contentPane.add(btnOpenDirectory);
 	}
 		
