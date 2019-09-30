@@ -144,14 +144,18 @@ public class mainWindowStart extends JFrame {
 			public void run(){
 				try {
 					
-					
-					
+					int value=0;
 					while(analizaGodzin.isEnabled()==false)
 					{
+						
 						lblchanges.setText("<html>"+saveinfo+"<br>- "+info+"</html>");
 						textArea.setText(error+"\n"+geterror_nr());
-						JScrollBar sb = scrollPane_1.getVerticalScrollBar();	//go to bottom in scroll panel in changes
+						JScrollBar sb = scrollPane_1.getVerticalScrollBar();	//go to bottom in scroll panel in changes if you don`t scroll
+						if(value==sb.getValue())
+						{
 						sb.setValue( sb.getMaximum());
+						}
+						value=sb.getValue();
 					sleep(3000);
 					}
 					lblchanges.setText("<html>"+saveinfo+"<br>"+info+"<br><center>Done JPK_MAG</center></html>");
@@ -246,7 +250,7 @@ public class mainWindowStart extends JFrame {
 		setResizable(false);
 		setTitle("JPK_MAG              CUB4U");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 541, 668);
+		setBounds(100, 100, 541, 671);
 		contentPane = new JPanel();
 		contentPane.setBackground(SystemColor.menu);
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -366,7 +370,7 @@ public class mainWindowStart extends JFrame {
 		
 		scrollPane_1 = new JScrollPane();
 		scrollPane_1.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-		scrollPane_1.setBounds(15, 352, 500, 61);
+		scrollPane_1.setBounds(10, 358, 515, 66);
 		
 		contentPane.add(scrollPane_1);
 		
@@ -374,7 +378,7 @@ public class mainWindowStart extends JFrame {
 		scrollPane_1.setViewportView(lblchanges);
 		
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(0, 439, 533, 190);
+		scrollPane.setBounds(0, 450, 533, 190);
 		contentPane.add(scrollPane);
 
 		textArea = new JTextArea();
@@ -522,7 +526,7 @@ public class mainWindowStart extends JFrame {
 		
 		JLabel lblErrors = new JLabel("Errors:");
 		lblErrors.setHorizontalAlignment(SwingConstants.CENTER);
-		lblErrors.setBounds(246, 414, 46, 14);
+		lblErrors.setBounds(246, 435, 46, 14);
 		contentPane.add(lblErrors);
 		
 		JLabel lblChanges = new JLabel("Changes:");

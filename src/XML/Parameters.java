@@ -13,9 +13,9 @@ import WB.mainWindowStart;
 
 //import PDF.Parameters;
 
-public class Parameters extends mainWindowStart {
+//public class Parameters extends mainWindowStart {
 //public class Parameters extends loop_to_jpk {
-//public class Parameters extends creator_for_former_month {
+public class Parameters extends creator_for_former_month {
 	
 	
 	

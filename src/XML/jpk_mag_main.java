@@ -93,11 +93,7 @@ System.out.println(info);
 		 
 		            transformer.setOutputProperty("http://www.oracle.com/xml/is-standalone", "yes");
 		            transformer.transform(domSource, streamResult);
-	
-		 
-	
-		            System.out.println("Done creating XML File");
-	
+
 		          }  
 		         catch (ParserConfigurationException pce) {
 		        	seterror(pce.toString());
@@ -305,7 +301,7 @@ System.out.println(info);
 			    					WZ.appendChild(wzWartosc);
 					       		
 			    							wzNumber = "WZ " +rs1.getString("NR");
-			    							System.out.println("Detected WZ with Number: "+ wzNumber);
+//			    							System.out.println("Detected WZ with Number: "+ wzNumber);
 
 setinfo("Create WZWartosc to xml        "+ wzNumber+"  "+rs1.getString("Artikelcode"));	
 			    							
@@ -390,7 +386,7 @@ System.out.println(info);
 									String StrNazwaTowaruWZ = rs1.getString("Artikelomschrijving");
 									if (rs1.getString("Artikelcode").equals("M") )	{
 										String StrTekst = rs1.getString("Tekst");
-System.out.println("for bonnummer "+ wzNumber + " we have following articledescription: "+ StrTekst);
+//System.out.println("for bonnummer "+ wzNumber + " we have following articledescription: "+ StrTekst);
 
 setinfo("Create WZWiersz to xml     "+wzNumber+"  "+rs1.getString("Artikelcode"));	
 										StrNazwaTowaruWZ=StrTekst;
@@ -462,7 +458,7 @@ setinfo("Create WZWiersz to xml     "+wzNumber+"  "+rs1.getString("Artikelcode")
 			    		rs1.close();
 			       		
 					       		
-					       		
+setsaveinfo("WZ done (103)");					       		
 System.out.println("WZ done (103)");					       		
 					       		return doc;
 					       		
@@ -541,7 +537,7 @@ System.out.println(info);
 		    					RW.appendChild(rwWartosc);
 				       		
 		    							rwNumber = "RW " +rs1.getString("NR");
-		    							System.out.println("Detected RW with Number: "+ rwNumber);
+//		    							System.out.println("Detected RW with Number: "+ rwNumber);
 
 setinfo("create RWWartosc 1 to xml      "+rwNumber+"  "+rs1.getString("ARTIKELCODE"));		
 				    				Element NumerRW = doc.createElement("NumerRW");
@@ -643,7 +639,7 @@ System.out.println(info);
 		    					RW.appendChild(rwWartosc);
 				       		
 		    							rwNumber = "RW " +rs2.getString("NR");
-		    							System.out.println("Detected RW with Number: "+ rwNumber);
+//		    							System.out.println("Detected RW with Number: "+ rwNumber);
 setinfo("create RWWartosc 2 to xml      "+rwNumber);		
 				    				Element NumerRW = doc.createElement("NumerRW");
 						       		NumerRW.appendChild(doc.createTextNode(rwNumber));
@@ -877,9 +873,9 @@ System.out.println(info);
 		    		rs1.close();
 		    		st2.close();
 		    		rs2.close();
-
+setsaveinfo("RW done (103)");	
 				       		return doc;
-		    		 				       		
+	    		 				       		
 }
 
 /**
@@ -960,7 +956,7 @@ System.out.println(info);
 setinfo("Create PZWartosc to xml      "+bonnr+"  "+rs1.getString("ARTIKELCODE"));	
 			    			if (bonnr != oldPzNr && countPZ > 0 && code.equals("A") && rs1.getString("FACTURATIEDATUM")!=null){
 			    				 
-			    				    System.out.println("ADD 1 PZWartosc: "+pzNumber+" | " + pzDatum+" | "+pzAmount+" | "+pzLeveringsdatum + " | " + pzLeverancier  );
+//			    				    System.out.println("ADD 1 PZWartosc: "+pzNumber+" | " + pzDatum+" | "+pzAmount+" | "+pzLeveringsdatum + " | " + pzLeverancier  );
 			    					doc = PZWartosc(doc, PZ, pzNumber, pzDatum, pzAmount, pzLeveringsdatum, pzLeverancier);
 			    				
 			    				
@@ -997,7 +993,7 @@ setinfo("Create PZWartosc to xml      "+bonnr+"  "+rs1.getString("ARTIKELCODE"))
 			    				
 			    				
 			    				
-			    				System.out.println("cumul "+ unitprice +" | "+ quantity +" | "+  valuta  +" | "+ pzDatum+" | "+pzNumber+"  "+rs1.getString("SEQUENTIE"));
+//			    				System.out.println("cumul "+ unitprice +" | "+ quantity +" | "+  valuta  +" | "+ pzDatum+" | "+pzNumber+"  "+rs1.getString("SEQUENTIE"));
 			    				pzAmount = cumulInitPlusPriceTimeQty("0", unitprice, quantity, valuta, pzDatum);
 			    				pzLeveringsdatum = rs1.getString("LEVERINGSDATUMINGAVERECEPTIE");
 			    				pzLeverancier = rs1.getString("LEVNAAM");
@@ -1012,12 +1008,13 @@ setinfo("Create PZWartosc to xml      "+bonnr+"  "+rs1.getString("ARTIKELCODE"))
 			    		} //END WHILE
 //!!!!!!!!!!!!!!! Byc mo¿e jest bl¹d - powtórzenie ostatniego wiersza !!!!!!!!!!!
 			    		//write down the last section of PZ
-		    			System.out.println("ADD 2 PZWartosc: "+pzNumber+" | " + pzDatum+" | "+pzAmount+" | "+pzLeveringsdatum + " | " + pzLeverancier  );
+//		    			System.out.println("ADD 2 PZWartosc: "+pzNumber+" | " + pzDatum+" | "+pzAmount+" | "+pzLeveringsdatum + " | " + pzLeverancier  );
 		    			doc = PZWartosc(doc, PZ, pzNumber, pzDatum, pzAmount, pzLeveringsdatum, pzLeverancier);
 		    			totalamountPZ = totalamountPZ.setScale(2,BigDecimal.ROUND_UP);
 			    		rs1.beforeFirst();
 //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			    		// WZWIERSZ
+setsaveinfo("Create PZWiersz to xml");
 			    		while(rs1.next()){
 			    			if(rs1.getString("bonnr")!=null && rs1.getString("VERSCHAFFINGSCODE")!=null && rs1.getString("LEVNAAM")!=null && rs1.getString("leverancier").length()==6)
 			    			{
@@ -1036,7 +1033,7 @@ setinfo("Create PZWartosc to xml      "+bonnr+"  "+rs1.getString("ARTIKELCODE"))
 					    			pzNumber = rs1.getString("bonnr");
 					    			String volgnummer = rs1.getString("SEQUENTIE");		//choice  SEQUENTIE, because SEQUENTIE is number facture 
 					    				
-					    			System.out.println("cumul proc: " + pzNumber + " |  " + unitprice + " |  " +valuta + " | " + pzDatum + " | " );
+//					    			System.out.println("cumul proc: " + pzNumber + " |  " + unitprice + " |  " +valuta + " | " + pzDatum + " | " );
 					    			if (unitprice == null){
 					    				unitprice="0";
 					    			 	System.out.println("ERROR proc: " + pzNumber + " |  " + unitprice + " |  " +valuta + " | " + pzDatum + " | " );
@@ -1048,8 +1045,8 @@ setinfo("Create PZWartosc to xml      "+bonnr+"  "+rs1.getString("ARTIKELCODE"))
 					    			unitprice = cumulInitPlusPriceTimeQty("0", unitprice, "1", valuta, pzDatum);
 					    			total = cumulInitPlusPriceTimeQty("0", unitprice, quantity, valuta, pzDatum);
 					    			
-					    			System.out.println("ADD PZWIERZ: "+pzNumber+" | " + articlecode+" | "+description+" | "+quantity + " | " + unit + " | " +unitprice + " | " + total);
-setinfo("Create PZWiersz to xml       "+pzNumber);						    			 
+//					    			System.out.println("ADD PZWIERZ: "+pzNumber+" | " + articlecode+" | "+description+" | "+quantity + " | " + unit + " | " +unitprice + " | " + total);
+setinfo("Create PZWiersz       "+rs1.getString("bonnr"));						    			 
 					    			doc = PZWiersz(doc, PZ, pzNumber+"/"+volgnummer, articlecode, description, quantity, unit, unitprice, total);
 			    			}
 			    			}
@@ -1076,7 +1073,7 @@ setinfo("Create PZWiersz to xml       "+pzNumber);
 			    		rs1.close();
 			       		
 					       		
-					       		
+setsaveinfo("PZ done (103)");					       		
 					       		
 					    return doc;
 					       		
